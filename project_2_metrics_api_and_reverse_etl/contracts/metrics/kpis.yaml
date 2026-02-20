@@ -1,0 +1,10 @@
+metric_set: core_kpis
+
+metrics:
+  - name: total_gmv
+    description: Total gross merchandise value
+    grain: daily
+
+  - name: order_count
+    description: Number of completed orders
+    grain: daily

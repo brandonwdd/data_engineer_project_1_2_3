@@ -1,0 +1,90 @@
+version: v1
+domain: project_1
+entity: orders
+description: >
+  CDC contract for orders table. Designed to exercise insert/update/delete,
+  deterministic ordering, and idempotent Silver merges.
+
+source:
+  system: postgres
+  capture: debezium
+  source_id: pg_docker
+  kafka:
+    topic_prefix: dbserver_docker
+    topic: public.orders
+
+primary_key:
+  - order_id
+
+required_envelope_fields:
+  - op
+  - ts_ms
+  - source
+
+op_semantics:
+  allowed_ops: ["c", "u", "d", "r"]
+  meaning:
+    c: create/insert
+    u: update
+    d: delete
+    r: snapshot read (initial load)
+
+payload_rules:
+  after_required_when_op: ["c", "u", "r"]
+  before_required_when_op: []
+  delete_rules:
+    after_must_be_null: true
+    before_should_exist: true
+
+deterministic_ordering:
+  ordering_keys_priority:
+    - source.lsn
+    - after.updated_at
+    - kafka.partition
+    - kafka.offset
+    
+schema:
+  fields:
+    order_id:
+      type: int64
+      nullable: false
+    user_id:
+      type: int64
+      nullable: false
+    order_ts:
+      type: timestamp
+      nullable: true
+    status:
+      type: string
+      nullable: true
+      # Keep status values small but enough to create multiple updates per order.
+      allowed_values: ["created", "paid", "shipped", "cancelled", "refunded"]
+    total_amount:
+      type: decimal(18,2)
+      nullable: true
+      constraints:
+        - ">= 0"
+    updated_at:
+      type: timestamp
+      nullable: true
+
+constraints:
+  # These are business-level expectations useful for data quality checks later.
+  - "primary_key must be unique in Silver (one row per order_id)"
+  - "total_amount must be non-negative"
+  - "status must be one of allowed_values"
+
+schema_evolution_policy:
+  add_column:
+    allowed: true
+    rule: "new fields must be nullable or have defaults; consumers must tolerate missing fields"
+  drop_column:
+    allowed: false
+    rule: "use deprecation window (>= 1-2 versions) before removal"
+  change_type:
+    allowed: false
+    rule: "introduce new column and deprecate old one"
+
+notes:
+  - "Silver merge keeps only the latest record per order_id based on deterministic_ordering."
+  - "Replaying the same Kafka offsets must not create duplicates or change final Silver state."

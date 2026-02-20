@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metrics-api
+spec:
+  replicas: 3
+  template:
+    spec:
+      containers:
+      - name: metrics-api
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: CACHE_TTL_SECONDS
+          value: "600"  # 10 minutes for prod
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metrics-api-config
+data:
+  trino-host: "trino-prod"
+  trino-port: "8080"
+  trino-user: "admin"
+  trino-catalog: "iceberg"
+  trino-schema: "mart"

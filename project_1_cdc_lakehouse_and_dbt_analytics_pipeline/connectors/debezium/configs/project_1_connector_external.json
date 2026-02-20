@@ -1,0 +1,34 @@
+{
+  "name": "project-1-postgres-cdc-external",
+  "config": {
+    "connector.class": "io.debezium.connector.postgresql.PostgresConnector",
+
+    "database.hostname": "host.docker.internal",
+    "database.port": "5433",
+    "database.user": "postgres",
+    "database.password": "postgres",
+    "database.dbname": "project1",
+
+    "topic.prefix": "dbserver_external",
+    "slot.name": "project1_cdc_slot_external",
+    "publication.autocreate.mode": "all_tables",
+
+    "table.include.list": "public.orders,public.users,public.payments",
+
+    "snapshot.mode": "initial",
+    "plugin.name": "pgoutput",
+
+    "tombstones.on.delete": "false",
+
+    "key.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "key.converter.schemas.enable": "false",
+    "value.converter": "org.apache.kafka.connect.json.JsonConverter",
+    "value.converter.schemas.enable": "false",
+
+    "decimal.handling.mode": "precise",
+    "include.schema.changes": "false",
+
+    "heartbeat.interval.ms": "10000",
+    "heartbeat.action.query": "SELECT 1"
+  }
+}

@@ -1,0 +1,321 @@
+# Project 1 platform: one stack for Project 1, 2, 3 (project name: de_platform)
+# Usage: cd platform/local && docker compose up -d
+# Image tags: fixed versions for reproducibility where available. MinIO/mc use latest.
+
+name: de_platform
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: project1
+    ports:
+      - "5432:5432"
+    command:
+      - "postgres"
+      - "-c"
+      - "wal_level=logical"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper-root:/var/lib/zookeeper
+      - zookeeper-data:/var/lib/zookeeper/data
+      - zookeeper-log:/var/lib/zookeeper/log
+      - zookeeper-secrets:/etc/zookeeper/secrets
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,PLAINTEXT_HOST://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - kafka-root:/var/lib/kafka
+      - kafkadata:/var/lib/kafka/data
+      - kafka-secrets:/etc/kafka/secrets
+
+  kafka-connect:
+    image: debezium/connect:2.5
+    container_name: kafka-connect
+    depends_on:
+      - kafka
+      - postgres
+    ports:
+      - "8083:8083"
+    volumes:
+      - kafka-connect-root:/kafka
+      - kafka-connect-data:/kafka/data
+      - kafka-connect-logs:/kafka/logs
+      - kafka-connect-config:/kafka/config
+    environment:
+      BOOTSTRAP_SERVERS: kafka:9092
+      GROUP_ID: de_platform-connect
+      CONFIG_STORAGE_TOPIC: de_platform_connect_configs
+      OFFSET_STORAGE_TOPIC: de_platform_connect_offsets
+      STATUS_STORAGE_TOPIC: de_platform_connect_statuses
+      KEY_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      VALUE_CONVERTER: org.apache.kafka.connect.json.JsonConverter
+      KEY_CONVERTER_SCHEMAS_ENABLE: "false"
+      VALUE_CONVERTER_SCHEMAS_ENABLE: "false"
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_BROWSER_REDIRECT_URL: http://localhost:9001
+    command: server /data --console-address ":9001"
+    volumes:
+      - miniodata:/data
+
+  minio-init:
+    image: minio/mc:latest
+    container_name: minio-init
+    depends_on:
+      - minio
+    volumes:
+      - minio-init-tmp:/tmp
+    entrypoint: >
+      /bin/sh -c "
+      sleep 15;
+      mc alias set myminio http://minio:9000 minioadmin minioadmin;
+      mc mb myminio/warehouse --ignore-existing;
+      exit 0;
+      "
+
+  iceberg-rest:
+    image: tabulario/iceberg-rest:latest
+    container_name: iceberg-rest
+    depends_on:
+      - minio-init
+    ports:
+      - "8181:8181"
+    volumes:
+      - iceberg-rest-data:/var/lib/iceberg-rest
+    environment:
+      CATALOG_WAREHOUSE: "s3://warehouse/"
+      CATALOG_IO__IMPL: "org.apache.iceberg.aws.s3.S3FileIO"
+      CATALOG_S3_ENDPOINT: "http://minio:9000"
+      CATALOG_S3_PATH__STYLE__ACCESS: "true"
+      CATALOG_S3_ACCESS__KEY__ID: "minioadmin"
+      CATALOG_S3_SECRET__ACCESS__KEY: "minioadmin"
+      AWS_REGION: "us-east-1"
+
+  trino:
+    image: trinodb/trino:430
+    container_name: trino
+    depends_on:
+      - iceberg-rest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./trino/catalog:/etc/trino/catalog
+      - trino-data:/data/trino
+    environment:
+      # Ensure JVM can reach MinIO
+      JAVA_OPTS: "-Xmx1G"
+
+  spark:
+    build:
+      context: ../..
+      dockerfile: streaming/spark/Dockerfile
+    container_name: spark
+    depends_on:
+      - kafka
+      - minio-init
+    environment:
+      KAFKA_BOOTSTRAP: kafka:9092
+      KAFKA_TOPICS: dbserver_docker.public.orders,dbserver_docker.public.users,dbserver_docker.public.payments
+      KAFKA_STARTING_OFFSETS: earliest
+      PROJECT_ROOT: /app
+      ICEBERG_WAREHOUSE: s3a://warehouse/iceberg
+      BRONZE_CKPT: s3a://warehouse/checkpoints/bronze/raw_cdc
+      S3_ENDPOINT: http://minio:9000
+      S3_ACCESS_KEY: minioadmin
+      S3_SECRET_KEY: minioadmin
+    volumes:
+      - ../..:/app
+    restart: unless-stopped
+
+  dbt:
+    image: python:3.11-slim
+    container_name: dbt
+    depends_on:
+      - trino
+    working_dir: /app/analytics/dbt
+    environment:
+      DBT_PROFILES_DIR: /app/analytics/dbt
+    volumes:
+      - ../../analytics/dbt:/app/analytics/dbt
+      - ../../:/app
+    command: >
+      sh -c "
+      pip install --no-cache-dir dbt-trino &&
+      dbt deps --profiles-dir /app/analytics/dbt &&
+      dbt run --profiles-dir /app/analytics/dbt
+      "
+    profiles:
+      - gold
+
+  # --- Airflow (for Project 2 metric_publish_gate, Project 3 quality_gate_enforcement) ---
+  airflow-db-create:
+    image: postgres:15
+    container_name: airflow-db-create
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: postgres
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        until pg_isready -h postgres -U postgres; do sleep 2; done;
+        psql -h postgres -U postgres -c 'CREATE DATABASE airflow' || true
+    restart: "no"
+    volumes:
+      - airflow-db-create-data:/var/lib/postgresql/data
+
+  airflow-init:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    image: de_platform-airflow:local
+    container_name: airflow-init
+    depends_on:
+      - airflow-db-create
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:postgres@postgres:5432/airflow"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:postgres@postgres:5432/airflow"
+      AIRFLOW_UID: 50000
+    entrypoint: ["/bin/bash", "-c"]
+    command:
+      - |
+        airflow db init
+        airflow users create --role Admin --username admin --email admin@example.com --firstname Admin --lastname User --password admin 2>/dev/null || true
+    restart: "no"
+    volumes:
+      - airflow-home:/opt/airflow
+      - ./airflow-dags:/opt/airflow/dags
+
+  airflow-webserver:
+    image: de_platform-airflow:local
+    container_name: airflow-webserver
+    depends_on:
+      - airflow-init
+    ports:
+      - "8081:8080"
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:postgres@postgres:5432/airflow"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:postgres@postgres:5432/airflow"
+      AIRFLOW_UID: 0
+      TRINO_HOST: trino
+      TRINO_PORT: "8080"
+      TRINO_USER: admin
+      TRINO_CATALOG: iceberg
+      TRINO_SCHEMA: mart_mart
+      DBT_PROJECT_DIR: /opt/airflow/dbt
+    command: webserver
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://localhost:8080/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+      start_period: 120s
+    restart: unless-stopped
+    volumes:
+      - airflow-home:/opt/airflow
+      - ./airflow-dags:/opt/airflow/dags
+      # Project 2 dbt (run dbt test in metric_publish_gate); path relative to compose file
+      - ../../../project_2_metrics_api_and_reverse_etl/analytics/dbt:/opt/airflow/dbt
+
+  airflow-scheduler:
+    image: de_platform-airflow:local
+    container_name: airflow-scheduler
+    depends_on:
+      - airflow-init
+    environment:
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:postgres@postgres:5432/airflow"
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: "postgresql+psycopg2://postgres:postgres@postgres:5432/airflow"
+      AIRFLOW_UID: 0
+      TRINO_HOST: trino
+      TRINO_PORT: "8080"
+      TRINO_USER: admin
+      TRINO_CATALOG: iceberg
+      TRINO_SCHEMA: mart_mart
+      DBT_PROJECT_DIR: /opt/airflow/dbt
+    command: scheduler
+    restart: unless-stopped
+    volumes:
+      - airflow-home:/opt/airflow
+      - ./airflow-dags:/opt/airflow/dags
+      - ../../../project_2_metrics_api_and_reverse_etl/analytics/dbt:/opt/airflow/dbt
+
+volumes:
+  pgdata:
+    name: de-pgdata
+  zookeeper-root:
+    name: de-zookeeper-root
+  zookeeper-data:
+    name: de-zookeeper-data
+  zookeeper-log:
+    name: de-zookeeper-log
+  zookeeper-secrets:
+    name: de-zookeeper-secrets
+  kafka-root:
+    name: de-kafka-root
+  kafkadata:
+    name: de-kafkadata
+  kafka-secrets:
+    name: de-kafka-secrets
+  kafka-connect-root:
+    name: de-kafka-connect-root
+  kafka-connect-data:
+    name: de-kafka-connect-data
+  kafka-connect-logs:
+    name: de-kafka-connect-logs
+  kafka-connect-config:
+    name: de-kafka-connect-config
+  miniodata:
+    name: de-miniodata
+  iceberg-rest-data:
+    name: de-iceberg-rest-data
+  trino-data:
+    name: de-trino-data
+  airflow-db-create-data:
+    name: de-airflow-db-create
+  airflow-home:
+    name: de-airflow-home
+  minio-init-tmp:
+    name: de-minio-init-tmp

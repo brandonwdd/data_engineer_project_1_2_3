@@ -1,0 +1,134 @@
+version: 2
+
+models:
+  - name: stg_kpis_daily
+    description: "Staging layer for daily KPIs (from project_1 mart_kpis_daily)"
+    columns:
+      - name: kpi_date
+        description: "KPI date (partition key)"
+        tests:
+          - not_null
+      - name: total_gmv
+        description: "Total gross merchandise value"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+      - name: order_count
+        description: "Number of orders"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+  - name: stg_users
+    description: "Staging layer for users (from project_1 dim_users)"
+    columns:
+      - name: user_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+
+  - name: stg_orders
+    description: "Staging layer for orders (from project_1 fct_orders)"
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests:
+          - not_null
+
+  - name: stg_payments
+    description: "Staging layer for payments (from project_1 fct_payments)"
+    columns:
+      - name: payment_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+
+  - name: int_user_segments
+    description: "Business logic layer for user segmentation"
+    columns:
+      - name: user_id
+        tests:
+          - not_null
+          - unique
+      - name: value_segment
+        tests:
+          - accepted_values:
+              values: ['high_value', 'medium_value', 'low_value']
+      - name: activity_segment
+        tests:
+          - accepted_values:
+              values: ['churn_risk', 'active', 'dormant']
+
+  - name: mart_user_segments
+    description: "User segmentation mart table"
+    columns:
+      - name: user_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: segment_date
+        description: "Segment assignment date"
+        tests:
+          - not_null
+
+  - name: mart_kpis_daily_v1
+    description: "Versioned daily KPI mart (v1)"
+    columns:
+      - name: kpi_date
+        description: "KPI date"
+        tests:
+          - not_null
+      - name: total_gmv
+        description: "Total GMV"
+        tests:
+          - not_null
+      - name: payment_success_rate
+        description: "Payment success rate (0-1)"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              max_value: 1
+              inclusive: true
+
+tests:
+  - name: test_kpi_completeness
+    description: "Ensure KPI table has expected daily partitions"
+    config:
+      severity: error
+      store_failures: true
+    test: |
+      SELECT 
+        COUNT(DISTINCT kpi_date) AS partition_count,
+        COUNT(DISTINCT kpi_date) - (
+          SELECT COUNT(DISTINCT DATE(order_ts)) 
+          FROM iceberg.mart_mart.fct_orders 
+          WHERE DATE(order_ts) >= CURRENT_DATE - INTERVAL '30' DAY
+        ) AS missing_partitions
+      FROM {{ ref('mart_kpis_daily_v1') }}
+      WHERE kpi_date >= CURRENT_DATE - INTERVAL '30' DAY
+
+  - name: test_payment_amount_consistency
+    description: "Ensure captured_amount <= total_gmv (sanity check)"
+    config:
+      severity: error
+      store_failures: true
+    test: |
+      SELECT 
+        kpi_date,
+        total_gmv,
+        captured_amount
+      FROM {{ ref('mart_kpis_daily_v1') }}
+      WHERE captured_amount > total_gmv
+        AND total_gmv > 0

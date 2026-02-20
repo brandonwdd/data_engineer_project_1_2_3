@@ -1,0 +1,17 @@
+table: orders
+primary_key: order_id
+
+required_fields:
+  - order_id
+  - user_id
+  - status
+  - total_amount
+  - updated_at
+  - op
+  - ts_ms
+
+ordering_key:
+  - order_id
+  - source.lsn
+  - updated_at
+  - kafka.offset

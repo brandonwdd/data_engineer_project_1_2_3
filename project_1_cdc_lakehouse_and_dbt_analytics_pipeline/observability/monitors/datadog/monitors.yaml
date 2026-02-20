@@ -1,0 +1,87 @@
+# Datadog Monitors (as Code) for Project 1 CDC Lakehouse
+# Deploy via Datadog API or Terraform provider
+
+monitors:
+  # Kafka Consumer Lag
+  - name: "Kafka Consumer Lag - Bronze Ingest"
+    type: "metric alert"
+    query: |
+      avg(last_5m):avg:kafka.consumer.lag{consumer_group:project1-bronze-ingest} by {topic} > 300000
+    message: |
+      Bronze ingest consumer lag > 5min (300k messages).
+      Check: Spark job health, Kafka broker disk, partition count.
+      Runbook: runbook/lag.md
+    tags:
+      - "project:project1"
+      - "component:kafka"
+      - "severity:warning"
+
+  # Spark Job Success Rate
+  - name: "Spark Job Success Rate - Bronze"
+    type: "metric alert"
+    query: |
+      avg(last_15m):sum:spark.job.success{job_name:project1-bronze-ingest}.as_count() / sum:spark.job.total{job_name:project1-bronze-ingest}.as_count() < 0.95
+    message: |
+      Bronze ingest job success rate < 95%.
+      Check: Spark logs, checkpoint corruption, contract violations.
+      Runbook: runbook/job_failure.md
+    tags:
+      - "project:project1"
+      - "component:spark"
+      - "severity:critical"
+
+  # Data Freshness (Bronze)
+  - name: "Data Freshness - Bronze raw_cdc"
+    type: "metric alert"
+    query: |
+      avg(last_10m):max:iceberg.table.freshness{table:bronze.raw_cdc} > 120
+    message: |
+      Bronze freshness > 2min (SLO breach).
+      Check: Kafka lag, Spark micro-batch duration, checkpoint lag.
+      Runbook: runbook/lag.md
+    tags:
+      - "project:project1"
+      - "component:data-freshness"
+      - "severity:warning"
+
+  # Completeness (Gold KPI partitions)
+  - name: "Completeness - Gold KPI Daily Partitions"
+    type: "metric alert"
+    query: |
+      avg(last_1h):count:iceberg.table.partitions{table:mart.mart_kpis_daily} < 1
+    message: |
+      Gold KPI daily partition missing for current date.
+      Check: Silver merge, dbt run, Airflow DAG status.
+      Runbook: runbook/data_quality_failure.md
+    tags:
+      - "project:project1"
+      - "component:completeness"
+      - "severity:critical"
+
+  # dbt Tests Pass Rate
+  - name: "dbt Tests Pass Rate"
+    type: "metric alert"
+    query: |
+      avg(last_1h):sum:dbt.test.passed.ratio < 1.0
+    message: |
+      dbt tests failed (quality gate breach).
+      Check: dbt test results, schema changes, data quality issues.
+      Runbook: runbook/data_quality_failure.md
+    tags:
+      - "project:project1"
+      - "component:quality-gate"
+      - "severity:critical"
+
+  # Airflow DAG Success Rate
+  - name: "Airflow DAG Success Rate"
+    type: "metric alert"
+    query: |
+      avg(last_1h):sum:airflow.dag.success{dag_id:quality_gate_cdc}.as_count() / sum:airflow.dag.total{dag_id:quality_gate_cdc}.as_count() < 0.9
+    message: |
+      Airflow quality_gate_cdc DAG success rate < 90%.
+      Check: Airflow logs, dbt test failures, Spark connectivity.
+      Runbook: runbook/job_failure.md
+    tags:
+      - "project:project1"
+      - "component:airflow"
+      - "severity:warning"

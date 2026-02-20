@@ -1,0 +1,4 @@
+# dbt project: use dbt templater to parse ref() and other Jinja
+[sqlfluff]
+templater = dbt
+dialect = ansi

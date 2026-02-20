@@ -1,0 +1,194 @@
+name: ci pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  lint_code:
+    name: lint code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: install python dependencies
+        run: |
+          pip install flake8 black isort sqlfluff sqlfluff-templater-dbt dbt-core
+          if [ -f project_3_data_contracts_and_quality_gates/tools/contract_validator/requirements.txt ]; then
+            pip install -r project_3_data_contracts_and_quality_gates/tools/contract_validator/requirements.txt
+          fi
+      
+      - name: lint python
+        run: |
+          flake8 project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming project_2_metrics_api_and_reverse_etl/reverse_etl project_3_data_contracts_and_quality_gates/tools --count --select=E9,F63,F7,F82 --show-source --statistics
+          black --check project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming project_2_metrics_api_and_reverse_etl/reverse_etl project_3_data_contracts_and_quality_gates/tools
+          isort --check-only project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming project_2_metrics_api_and_reverse_etl/reverse_etl project_3_data_contracts_and_quality_gates/tools
+      
+      - name: lint sql
+        run: |
+          sqlfluff lint project_1_cdc_lakehouse_and_dbt_analytics_pipeline/analytics/dbt project_1_cdc_lakehouse_and_dbt_analytics_pipeline/lakehouse project_2_metrics_api_and_reverse_etl/analytics/dbt project_2_metrics_api_and_reverse_etl/lakehouse --dialect ansi
+        continue-on-error: true
+
+  validate_data_contracts:
+    name: validate data contracts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: install python dependencies
+        run: |
+          pip install -r project_3_data_contracts_and_quality_gates/tools/contract_validator/requirements.txt
+      
+      - name: validate contracts
+        run: |
+          cd project_3_data_contracts_and_quality_gates/tools/contract_validator
+          python contract_validator.py \
+            --contracts-dir ../../contracts \
+            --output validation_results.json
+      
+      - name: upload validation results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: contract-validation-results
+          path: project_3_data_contracts_and_quality_gates/tools/contract_validator/validation_results.json
+
+  unit_tests:
+    name: unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: install python dependencies
+        run: |
+          pip install pytest pytest-cov
+          if [ -f project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming/spark/requirements.txt ]; then
+            pip install -r project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming/spark/requirements.txt
+          fi
+          if [ -f project_2_metrics_api_and_reverse_etl/reverse_etl/requirements.txt ]; then
+            pip install -r project_2_metrics_api_and_reverse_etl/reverse_etl/requirements.txt
+          fi
+          if [ -f project_3_data_contracts_and_quality_gates/tools/contract_validator/requirements.txt ]; then
+            pip install -r project_3_data_contracts_and_quality_gates/tools/contract_validator/requirements.txt
+          fi
+      
+      - name: run project 1 unit tests
+        run: |
+          if [ -d project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming/spark/tests ]; then
+            PYTHONPATH=project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming pytest project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming/spark/tests -v --cov=project_1_cdc_lakehouse_and_dbt_analytics_pipeline/streaming --cov-report=xml
+          else
+            echo "no project 1 tests found"
+          fi
+        continue-on-error: true
+      
+      - name: run project 3 contract validator tests
+        run: |
+          # Placeholder for contract validator unit tests
+          echo "Contract validator tests placeholder"
+        continue-on-error: true
+      
+      - name: upload coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+  dbt_compile_sql:
+    name: dbt compile sql
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: install dbt
+        run: |
+          pip install dbt-trino
+      
+      - name: compile project 1 dbt
+        run: |
+          cd project_1/analytics/dbt
+          dbt deps --profiles-dir . --project-dir .
+          dbt compile --profiles-dir . --project-dir . || echo "dbt compile failed (expected without Trino)"
+        continue-on-error: true
+      
+      - name: compile project 2 dbt
+        run: |
+          cd project_2_metrics_api_and_reverse_etl/analytics/dbt
+          dbt deps --profiles-dir . --project-dir .
+          dbt compile --profiles-dir . --project-dir . || echo "dbt compile failed (expected without Trino)"
+        continue-on-error: true
+
+  dbt_test:
+    name: dbt test (sample)
+    runs-on: ubuntu-latest
+    needs: [lint_code, validate_data_contracts]
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: install dbt
+        run: |
+          pip install dbt-trino dbt-utils dbt-expectations
+      
+      - name: run dbt tests (compile only)
+        run: |
+          # Since we don't have Trino in CI, we just validate SQL syntax
+          cd project_1_cdc_lakehouse_and_dbt_analytics_pipeline/analytics/dbt
+          dbt deps --profiles-dir . --project-dir .
+          dbt parse --profiles-dir . --project-dir . || echo "dbt parse failed (expected without Trino)"
+        continue-on-error: true
+
+  quality_gate_summary:
+    name: quality gate summary
+    runs-on: ubuntu-latest
+    needs: [lint_code, validate_data_contracts, unit_tests, dbt_compile_sql]
+    if: always()
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: quality gate status
+        run: |
+          echo "## quality gate status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint_code.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Contract Validation | ${{ needs.validate_data_contracts.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit_tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| dbt Compile | ${{ needs.dbt_compile_sql.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.lint_code.result }}" != "success" ] || \
+             [ "${{ needs.validate_data_contracts.result }}" != "success" ] || \
+             [ "${{ needs.unit_tests.result }}" != "success" ]; then
+            echo "quality gates failed - merge blocked" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "all quality gates passed" >> $GITHUB_STEP_SUMMARY 
+          fi

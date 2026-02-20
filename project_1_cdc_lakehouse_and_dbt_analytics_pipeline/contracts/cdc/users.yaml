@@ -1,0 +1,83 @@
+version: v1
+domain: project_1
+entity: users
+description: >
+  CDC contract for users table. Defines required Debezium envelope fields,
+  primary key, and deterministic ordering semantics used for Silver upserts.
+
+source:
+  system: postgres
+  capture: debezium
+  source_id: pg_docker
+  kafka:
+    topic_prefix: dbserver_docker
+    topic: public.users
+
+primary_key:
+  - user_id
+
+required_envelope_fields:
+  - op
+  - ts_ms
+  - source
+
+op_semantics:
+  allowed_ops: ["c", "u", "d", "r"]
+  meaning:
+    c: create/insert
+    u: update
+    d: delete
+    r: snapshot read (initial load)
+
+payload_rules:
+  after_required_when_op: ["c", "u", "r"]
+  before_required_when_op: []
+  delete_rules:
+    after_must_be_null: true
+    before_should_exist: true
+
+deterministic_ordering:
+  ordering_keys_priority:
+    - source.lsn
+    - after.updated_at
+    - kafka.partition
+    - kafka.offset
+
+schema:
+  fields:
+    user_id:
+      type: int64
+      nullable: false
+    email:
+      type: string
+      nullable: true
+      pii: true
+    status:
+      type: string
+      nullable: true
+      allowed_values: ["active", "blocked", "deleted"]
+    created_at:
+      type: timestamp
+      nullable: true
+    updated_at:
+      type: timestamp
+      nullable: true
+
+constraints:
+  - "primary_key must be unique in Silver (one row per user_id)"
+  - "status must be one of allowed_values"
+
+schema_evolution_policy:
+  add_column:
+    allowed: true
+    rule: "new fields must be nullable or have defaults; consumers must tolerate missing fields"
+  drop_column:
+    allowed: false
+    rule: "use deprecation window (>= 1-2 versions) before removal"
+  change_type:
+    allowed: false
+    rule: "introduce new column and deprecate old one"
+
+notes:
+  - "Consumers must treat events as at-least-once; downstream upsert must be idempotent."
+  - "If source.lsn is missing, updated_at + kafka.offset must still yield deterministic ordering."

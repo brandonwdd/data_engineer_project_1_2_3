@@ -1,0 +1,29 @@
+# Kustomize overlay: prod environment
+# Overrides: higher resources, S3 (not MinIO), production config
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+  - ../base
+
+namespace: project1-cdc-prod
+
+patchesStrategicMerge:
+  - spark-bronze-patch.yaml
+  - spark-silver-patch.yaml
+
+configMapGenerator:
+  - name: project1-config
+    behavior: merge
+    literals:
+      - ENV=prod
+      - S3_ENDPOINT=https://s3.amazonaws.com
+      - ICEBERG_WAREHOUSE=s3://project1-warehouse/iceberg
+      - LOG_LEVEL=INFO
+
+secretGenerator:
+  - name: s3-credentials
+    literals:
+      - S3_ACCESS_KEY=${S3_ACCESS_KEY}
+      - S3_SECRET_KEY=${S3_SECRET_KEY}

@@ -1,0 +1,9 @@
+# Dev environment variables
+# Copy this file to terraform.tfvars and fill in your values
+
+project_name = "project1"
+environment  = "dev"
+aws_region   = "us-east-1"
+
+# Set to true to use AWS S3, false to use local MinIO
+use_aws_s3 = false

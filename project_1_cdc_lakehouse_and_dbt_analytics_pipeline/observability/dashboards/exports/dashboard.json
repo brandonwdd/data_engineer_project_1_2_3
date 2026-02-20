@@ -1,0 +1,133 @@
+{
+  "title": "Project 1 - CDC Lakehouse SLO Dashboard",
+  "description": "End-to-end monitoring: Kafka lag, Spark metrics, data freshness, completeness, quality gates",
+  "widgets": [
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Kafka Consumer Lag (Bronze Ingest)",
+        "requests": [
+          {
+            "q": "avg:kafka.consumer.lag{consumer_group:project1-bronze-ingest} by {topic}",
+            "display_type": "line"
+          }
+        ],
+        "yaxis": {
+          "label": "Messages",
+          "min": 0
+        }
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "End-to-End Latency (P95)",
+        "requests": [
+          {
+            "q": "p95:iceberg.table.freshness{table:bronze.raw_cdc}",
+            "display_type": "line"
+          },
+          {
+            "q": "p95:iceberg.table.freshness{table:silver.users}",
+            "display_type": "line"
+          }
+        ],
+        "yaxis": {
+          "label": "Seconds",
+          "min": 0
+        }
+      }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Data Freshness (Bronze)",
+        "requests": [
+          {
+            "q": "max:iceberg.table.freshness{table:bronze.raw_cdc}",
+            "aggregator": "last"
+          }
+        ],
+        "precision": 0,
+        "custom_unit": "seconds"
+      }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "Completeness (Gold KPI Partitions)",
+        "requests": [
+          {
+            "q": "count:iceberg.table.partitions{table:mart.mart_kpis_daily}",
+            "aggregator": "last"
+          }
+        ],
+        "precision": 0
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Spark Job Success Rate",
+        "requests": [
+          {
+            "q": "sum:spark.job.success{job_name:project1-bronze-ingest}.as_count() / sum:spark.job.total{job_name:project1-bronze-ingest}.as_count()",
+            "display_type": "line"
+          }
+        ],
+        "yaxis": {
+          "label": "Ratio",
+          "min": 0,
+          "max": 1
+        }
+      }
+    },
+    {
+      "definition": {
+        "type": "query_value",
+        "title": "dbt Tests Pass Rate",
+        "requests": [
+          {
+            "q": "avg:dbt.test.passed.ratio",
+            "aggregator": "last"
+          }
+        ],
+        "precision": 2
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Spark Micro-Batch Duration",
+        "requests": [
+          {
+            "q": "avg:spark.streaming.batch.duration{job_name:project1-bronze-ingest}",
+            "display_type": "line"
+          }
+        ],
+        "yaxis": {
+          "label": "Milliseconds",
+          "min": 0
+        }
+      }
+    },
+    {
+      "definition": {
+        "type": "timeseries",
+        "title": "Bronze Event Count (by Entity)",
+        "requests": [
+          {
+            "q": "sum:iceberg.table.row_count{table:bronze.raw_cdc} by {entity}",
+            "display_type": "bars"
+          }
+        ],
+        "yaxis": {
+          "label": "Events",
+          "min": 0
+        }
+      }
+    }
+  ],
+  "layout_type": "ordered",
+  "is_read_only": false
+}

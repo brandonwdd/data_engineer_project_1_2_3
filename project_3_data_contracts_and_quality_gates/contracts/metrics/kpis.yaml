@@ -1,0 +1,86 @@
+version: v1
+domain: project_2
+entity: kpis
+description: >
+  Metrics contract for daily KPIs. Ensures metric consistency and versioning.
+
+source:
+  system: dbt
+  mart: mart_kpis_daily_v1
+
+primary_key:
+  - kpi_date
+  - metric_version
+
+required_fields:
+  - kpi_date
+  - total_gmv
+  - order_count
+  - metric_version
+
+schema:
+  fields:
+    kpi_date:
+      type: date
+      nullable: false
+    total_gmv:
+      type: decimal(18,2)
+      nullable: false
+      constraints:
+        - ">= 0"
+    order_count:
+      type: int64
+      nullable: false
+      constraints:
+        - ">= 0"
+    active_users:
+      type: int64
+      nullable: true
+      constraints:
+        - ">= 0"
+    payment_count:
+      type: int64
+      nullable: true
+      constraints:
+        - ">= 0"
+    captured_amount:
+      type: decimal(18,2)
+      nullable: true
+      constraints:
+        - ">= 0"
+        - "<= total_gmv"
+    payment_success_rate:
+      type: double
+      nullable: true
+      constraints:
+        - ">= 0"
+        - "<= 1"
+    metric_version:
+      type: string
+      nullable: false
+      allowed_values: ["v1", "v2"]
+
+constraints:
+  - "total_gmv must be non-negative"
+  - "order_count must be non-negative"
+  - "captured_amount <= total_gmv (sanity check)"
+  - "payment_success_rate between 0 and 1"
+
+schema_evolution_policy:
+  add_column:
+    allowed: true
+    rule: "new metric fields must be nullable or have defaults"
+  drop_column:
+    allowed: false
+    rule: "use deprecation window (>= 1-2 versions) before removal"
+  change_type:
+    allowed: false
+    rule: "introduce new column and deprecate old one"
+
+versioning:
+  current_version: v1
+  version_strategy: "explicit versioning in table name and API parameter"
+
+notes:
+  - "Metric versioning ensures backward compatibility"
+  - "All constraints must pass before publishing"

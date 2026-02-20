@@ -1,0 +1,69 @@
+version: v1
+domain: project_2
+entity: user_segments
+description: >
+  Metrics contract for user segmentation. Ensures segment consistency.
+
+source:
+  system: dbt
+  mart: mart_user_segments
+
+primary_key:
+  - user_id
+  - segment_date
+
+required_fields:
+  - user_id
+  - segment_date
+  - value_segment
+  - activity_segment
+
+schema:
+  fields:
+    user_id:
+      type: int64
+      nullable: false
+    segment_date:
+      type: date
+      nullable: false
+    value_segment:
+      type: string
+      nullable: true
+      allowed_values: ["high_value", "medium_value", "low_value"]
+    activity_segment:
+      type: string
+      nullable: true
+      allowed_values: ["churn_risk", "active", "dormant"]
+    last_90d_gmv:
+      type: decimal(18,2)
+      nullable: true
+      constraints:
+        - ">= 0"
+    is_churn_risk:
+      type: int32
+      nullable: true
+      allowed_values: [0, 1]
+    is_active:
+      type: int32
+      nullable: true
+      allowed_values: [0, 1]
+
+constraints:
+  - "value_segment must be one of allowed_values"
+  - "activity_segment must be one of allowed_values"
+  - "last_90d_gmv must be non-negative"
+
+schema_evolution_policy:
+  add_column:
+    allowed: true
+    rule: "new segment fields must be nullable or have defaults"
+  drop_column:
+    allowed: false
+    rule: "use deprecation window (>= 1-2 versions) before removal"
+  change_type:
+    allowed: false
+    rule: "introduce new column and deprecate old one"
+
+notes:
+  - "Segments are used for Reverse ETL back to business systems"
+  - "Segment consistency is critical for activation systems"

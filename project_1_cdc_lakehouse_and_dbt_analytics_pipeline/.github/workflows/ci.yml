@@ -1,0 +1,172 @@
+name: ci_pipeline
+
+on:
+  push:
+    branches: [ main, dev ]
+  pull_request:
+    branches: [ main, dev ]
+
+jobs:
+  lint_code:
+    name: lint code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: install python dependencies
+        run: |
+          pip install black flake8 mypy sqlfluff
+          pip install dbt-core dbt-trino
+
+      - name: lint python
+        run: |
+          black --check streaming/spark/
+          flake8 streaming/spark/ --max-line-length=120 --ignore=E501,W503
+
+      - name: lint sql
+        working-directory: analytics/dbt
+        run: dbt parse
+
+  unit_tests:
+    name: unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: install python dependencies
+        run: |
+          pip install -r streaming/spark/requirements.txt
+          pip install pytest pytest-cov pytest-html
+
+      - name: run unit tests
+        env:
+          PYTHONPATH: .
+        run: |
+          pytest streaming/spark/tests/ \
+            -v \
+            --cov=streaming/spark \
+            --cov-report=html \
+            --cov-report=xml \
+            --html=test-report.html \
+            --self-contained-html
+
+      - name: upload coverage
+        uses: codecov/codecov-action@v3
+        if: always()
+        with:
+          files: ./coverage.xml
+          fail_ci_if_error: false
+
+      - name: upload test report
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: test-report
+          path: test-report.html
+
+  dbt:
+    name: dbt compile and test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: prepare python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: install dbt
+        run: |
+          pip install dbt-core==1.7.0 dbt-trino
+          pip install dbt-utils dbt-expectations
+
+      - name: dbt deps
+        working-directory: analytics/dbt
+        run: dbt deps
+
+      - name: dbt compile
+        working-directory: analytics/dbt
+        run: dbt compile
+
+      - name: dbt test (schema tests)
+        working-directory: analytics/dbt
+        run: dbt test --store-failures
+        continue-on-error: true
+
+      - name: upload dbt test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: dbt-test-results
+          path: analytics/dbt/target/
+
+  terraform_validate:
+    name: terraform validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: set up terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.5.0"
+
+      - name: terraform fmt check
+        run: terraform fmt -check -recursive infra/terraform/
+
+      - name: terraform validate (prod)
+        working-directory: infra/terraform/environments/prod
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: terraform validate (dev)
+        working-directory: infra/terraform/environments/dev
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+      - name: terraform validate (local)
+        working-directory: infra/terraform/environments/local
+        run: |
+          terraform init -backend=false
+          terraform validate
+
+  quality_gate_summary:
+    name: quality gate summary
+    runs-on: ubuntu-latest
+    needs: [lint_code, unit_tests, dbt, terraform]
+    if: always()
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: quality gate status
+        run: |
+          echo "## quality gate status" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Lint | ${{ needs.lint_code.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Unit Tests | ${{ needs.unit_tests.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| dbt | ${{ needs.dbt.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Terraform | ${{ needs.terraform.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ needs.lint_code.result }}" != "success" ] || \
+             [ "${{ needs.unit_tests.result }}" != "success" ] || \
+             [ "${{ needs.dbt.result }}" != "success" ] || \
+             [ "${{ needs.terraform.result }}" != "success" ]; then
+            echo "quality gates failed - merge blocked" >> $GITHUB_STEP_SUMMARY
+            exit 1
+          else
+            echo "all quality gates passed" >> $GITHUB_STEP_SUMMARY
+          fi

@@ -1,0 +1,7 @@
+{
+  "before": {"order_id": 1, "user_id": 1, "order_ts": "2026-01-15T12:00:00Z", "status": "cancelled", "total_amount": 99.99, "updated_at": "2026-01-15T12:05:00Z"},
+  "after": null,
+  "source": {"db": "project1", "schema": "public", "table": "orders", "lsn": 26930100},
+  "op": "d",
+  "ts_ms": 1736942700000
+}

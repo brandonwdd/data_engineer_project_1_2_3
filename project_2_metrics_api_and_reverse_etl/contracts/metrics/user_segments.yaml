@@ -1,0 +1,8 @@
+segment_set: user_segments
+
+segments:
+  - name: high_value
+    description: High lifetime value users
+
+  - name: churn_risk
+    description: Users with declining activity

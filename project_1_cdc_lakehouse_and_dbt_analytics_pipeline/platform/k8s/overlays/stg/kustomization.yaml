@@ -1,0 +1,21 @@
+# Kustomize overlay: stg environment
+# Overrides: medium resources, staging config
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+bases:
+  - ../base
+
+namespace: project1-cdc-stg
+
+patchesStrategicMerge:
+  - spark-bronze-patch.yaml
+  - spark-silver-patch.yaml
+
+configMapGenerator:
+  - name: project1-config
+    behavior: merge
+    literals:
+      - ENV=stg
+      - LOG_LEVEL=INFO

@@ -1,0 +1,18 @@
+[
+  "streaming/spark/tests/test_contract_validate.py::test_entity_from_topic",
+  "streaming/spark/tests/test_contract_validate.py::test_entity_from_topic_unknown_raises",
+  "streaming/spark/tests/test_contract_validate.py::test_load_contracts",
+  "streaming/spark/tests/test_contract_validate.py::test_validate_event_delete_after_not_null_raises",
+  "streaming/spark/tests/test_contract_validate.py::test_validate_event_delete_ok",
+  "streaming/spark/tests/test_contract_validate.py::test_validate_event_insert_missing_after_raises",
+  "streaming/spark/tests/test_contract_validate.py::test_validate_event_insert_ok",
+  "streaming/spark/tests/test_contract_validate.py::test_validate_event_missing_op_raises",
+  "streaming/spark/tests/test_parse_debezium.py::test_build_event_uid",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_batch",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_entity_key_from_after",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_entity_key_from_before_delete",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_ordering_key_fallback_updated_at",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_ordering_key_with_lsn",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_single_insert",
+  "streaming/spark/tests/test_parse_debezium.py::test_parse_single_unknown_topic_raises"
+]

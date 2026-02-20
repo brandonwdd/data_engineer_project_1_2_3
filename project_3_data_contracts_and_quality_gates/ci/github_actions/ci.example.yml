@@ -1,0 +1,7 @@
+# GitHub Actions CI Pipeline (Placeholder)
+
+# Steps:
+# - Lint contracts
+# - Validate schema changes
+# - Run dbt compile and tests
+# - Enforce quality gates

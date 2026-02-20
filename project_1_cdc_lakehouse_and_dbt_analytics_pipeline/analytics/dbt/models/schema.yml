@@ -1,0 +1,135 @@
+version: 2
+
+models:
+  - name: stg_users
+    description: "Staging layer for users (from Silver)"
+    columns:
+      - name: user_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: status
+        tests:
+          - accepted_values:
+              values: ['active', 'blocked', 'deleted', 'unknown']
+
+  - name: stg_orders
+    description: "Staging layer for orders (from Silver)"
+    columns:
+      - name: order_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_users')
+              field: user_id
+      - name: total_amount
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+  - name: stg_payments
+    description: "Staging layer for payments (from Silver)"
+    columns:
+      - name: payment_id
+        description: "Primary key"
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: amount
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: true
+
+  - name: int_users
+    description: "Business logic layer for users"
+    columns:
+      - name: user_id
+        tests:
+          - not_null
+          - unique
+
+  - name: int_orders
+    description: "Business logic layer for orders"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests:
+          - relationships:
+              to: ref('int_users')
+              field: user_id
+
+  - name: int_payments
+    description: "Business logic layer for payments"
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - relationships:
+              to: ref('int_orders')
+              field: order_id
+
+  - name: dim_users
+    description: "User dimension table"
+    columns:
+      - name: user_id
+        tests:
+          - not_null
+          - unique
+
+  - name: fct_orders
+    description: "Orders fact table"
+    columns:
+      - name: order_id
+        tests:
+          - not_null
+          - unique
+      - name: user_id
+        tests:
+          - relationships:
+              to: ref('dim_users')
+              field: user_id
+
+  - name: fct_payments
+    description: "Payments fact table"
+    columns:
+      - name: payment_id
+        tests:
+          - not_null
+          - unique
+      - name: order_id
+        tests:
+          - relationships:
+              to: ref('fct_orders')
+              field: order_id
+
+  - name: mart_kpis_daily
+    description: "Daily KPI aggregation"
+    columns:
+      - name: kpi_date
+        tests:
+          - not_null
+          - unique
+    tests:
+      - dbt_expectations.expect_table_row_count_to_equal_other_table:
+          compare_model: source('kpi_expected', 'daily_partitions')
+          factor: 1.0

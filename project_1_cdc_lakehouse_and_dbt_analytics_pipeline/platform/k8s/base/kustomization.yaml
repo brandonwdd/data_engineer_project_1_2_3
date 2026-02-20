@@ -1,0 +1,17 @@
+# Kustomize base configuration for Project 1 CDC Lakehouse
+# Base: common resources (Deployments, Services, ConfigMaps)
+# Overlays: dev/stg/prod (environment-specific overrides)
+
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - namespace.yaml
+  - spark-bronze-deployment.yaml
+  - spark-silver-deployment.yaml
+  - minio-deployment.yaml
+  - configmap.yaml
+
+commonLabels:
+  app: project1-cdc-lakehouse
+  version: v1.0.0

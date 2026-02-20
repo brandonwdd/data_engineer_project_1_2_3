@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-silver-merge
+  namespace: project1-cdc
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: spark-silver-merge
+  template:
+    metadata:
+      labels:
+        app: spark-silver-merge
+    spec:
+      schedule: "*/10 * * * *"  # Run every 10 minutes (CronJob would be better)
+      containers:
+      - name: spark
+        image: project1-spark:latest
+        command:
+          - spark-submit
+          - --master
+          - k8s://https://kubernetes.default.svc
+          - --deploy-mode
+          - cluster
+          - --packages
+          - org.apache.iceberg:iceberg-spark-runtime-3.5_2.12:1.4.2
+          - /app/streaming/spark/silver_merge/merge_silver.py
+        envFrom:
+        - configMapRef:
+            name: project1-config
+        resources:
+          requests:
+            memory: "2Gi"
+            cpu: "1000m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"

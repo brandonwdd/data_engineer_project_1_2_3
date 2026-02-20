@@ -1,0 +1,9 @@
+# Install dependencies at build time to avoid pip install on every container startup (must execute pip as airflow user)
+FROM apache/airflow:2.7.3
+USER airflow
+RUN pip install --no-cache-dir \
+    apache-airflow-providers-trino \
+    trino \
+    "apache-airflow-providers-openlineage>=1.8.0" \
+    dbt-core \
+    dbt-trino

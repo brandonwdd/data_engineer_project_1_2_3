@@ -1,0 +1,18 @@
+# Patch: Spark Bronze resources (prod)
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: spark-bronze-ingest
+spec:
+  replicas: 2  # High availability
+  template:
+    spec:
+      containers:
+      - name: spark
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2000m"
+          limits:
+            memory: "8Gi"
+            cpu: "4000m"

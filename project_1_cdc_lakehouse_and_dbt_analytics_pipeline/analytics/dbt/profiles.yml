@@ -1,0 +1,14 @@
+project_1:
+  outputs:
+    trino:
+      type: trino
+      method: none
+      host: trino  # use container name when running in Docker
+      port: 8080
+      user: admin
+      password: ""
+      catalog: iceberg
+      schema: mart
+      threads: 1
+      http_scheme: http
+  target: trino

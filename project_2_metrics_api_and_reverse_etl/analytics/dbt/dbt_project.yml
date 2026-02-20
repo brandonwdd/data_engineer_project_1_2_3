@@ -1,0 +1,36 @@
+name: 'project_2'
+version: '1.0.0'
+config-version: 2
+
+profile: 'project_2'
+
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# All models write to the same schema (TRINO_SCHEMA, e.g. mart_mart), do not concatenate stg/int/mart sub-schemas
+models:
+  project_2:
+    +materialized: table  # REST catalog does not support view, changed to table
+    stg:
+      +materialized: table
+    int:
+      +materialized: table
+    mart:
+      +materialized: table
+
+seeds:
+  project_2:
+    +quote_columns: false
+
+tests:
+  project_2:
+    +store_failures: true

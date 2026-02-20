@@ -1,0 +1,7 @@
+{
+  "before": null,
+  "after": {"user_id": 1, "email": "u1@example.com", "status": "active", "created_at": "2026-01-15T12:00:00Z", "updated_at": "2026-01-15T12:00:00Z"},
+  "source": {"db": "project1", "schema": "public", "table": "users", "lsn": 26930080},
+  "op": "c",
+  "ts_ms": 1736942400000
+}

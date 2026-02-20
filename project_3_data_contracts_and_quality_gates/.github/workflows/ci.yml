@@ -1,0 +1,14 @@
+﻿name: ci
+
+on:
+  pull_request:
+  push:
+    branches: [ main, master ]
+
+jobs:
+  placeholder:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Placeholder
+        run: echo 'TODO: wire lint/tests/validation'
+

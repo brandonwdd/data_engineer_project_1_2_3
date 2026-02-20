@@ -1,0 +1,9 @@
+Demo: Failure Recovery
+
+Metric: total_gmv
+Checksum: 9f3b2a7c18e4d5f6
+
+Metric: order_count
+Checksum: a82c91f03d7e2b19
+
+Result: PASS (no drift after restart)

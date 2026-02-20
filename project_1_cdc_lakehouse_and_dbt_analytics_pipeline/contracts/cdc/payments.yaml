@@ -1,0 +1,88 @@
+version: v1
+domain: project_1
+entity: payments
+description: >
+  CDC contract for payments table. Exercises insert/update/delete, deterministic ordering,
+  and idempotent Silver merges; supports replay/backfill without changing final Silver state.
+
+source:
+  system: postgres
+  capture: debezium
+  source_id: pg_docker
+  kafka:
+    topic_prefix: dbserver_docker
+    topic: public.payments
+
+primary_key:
+  - payment_id
+
+required_envelope_fields:
+  - op
+  - ts_ms
+  - source
+
+op_semantics:
+  allowed_ops: ["c", "u", "d", "r"]
+  meaning:
+    c: create/insert
+    u: update
+    d: delete
+    r: snapshot read (initial load)
+
+payload_rules:
+  after_required_when_op: ["c", "u", "r"]
+  before_required_when_op: []
+  delete_rules:
+    after_must_be_null: true
+    before_should_exist: true
+
+deterministic_ordering:
+  ordering_keys_priority:
+    - source.lsn
+    - after.updated_at
+    - kafka.partition
+    - kafka.offset
+
+schema:
+  fields:
+    payment_id:
+      type: int64
+      nullable: false
+    order_id:
+      type: int64
+      nullable: false
+    amount:
+      type: decimal(18,2)
+      nullable: true
+      constraints:
+        - ">= 0"
+    status:
+      type: string
+      nullable: true
+      allowed_values: ["created", "authorized", "captured", "failed", "refunded", "cancelled"]
+    failure_reason:
+      type: string
+      nullable: true
+    updated_at:
+      type: timestamp
+      nullable: true
+
+constraints:
+  - "primary_key must be unique in Silver (one row per payment_id)"
+  - "amount must be non-negative"
+  - "status must be one of allowed_values"
+
+schema_evolution_policy:
+  add_column:
+    allowed: true
+    rule: "new fields must be nullable or have defaults; consumers must tolerate missing fields"
+  drop_column:
+    allowed: false
+    rule: "use deprecation window (>= 1-2 versions) before removal"
+  change_type:
+    allowed: false
+    rule: "introduce new column and deprecate old one"
+
+notes:
+  - "Silver merge keeps only the latest record per payment_id based on deterministic_ordering."
+  - "Replaying the same Kafka offsets must not create duplicates or change final Silver state."

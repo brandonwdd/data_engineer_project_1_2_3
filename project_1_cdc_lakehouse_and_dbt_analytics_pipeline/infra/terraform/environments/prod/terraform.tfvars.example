@@ -1,0 +1,9 @@
+# Production environment variables
+# Copy this file to terraform.tfvars and fill in your values
+
+project_name = "project1"
+environment  = "prod"
+aws_region   = "us-east-1"  # Change to your preferred region
+
+# Optional: Enable S3 versioning for data protection
+enable_versioning = false

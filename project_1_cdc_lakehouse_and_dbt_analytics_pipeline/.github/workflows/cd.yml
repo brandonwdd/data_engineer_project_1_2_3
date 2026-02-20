@@ -1,0 +1,26 @@
+name: cd_pipeline
+
+on:
+  workflow_run:
+    workflows: [ "ci_pipeline" ]
+    types: [ completed ]
+    branches: [ main, dev ]
+
+jobs:
+  deploy_project_1:
+    name: deploy project 1
+    runs-on: ubuntu-latest
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: write release info
+        run: |
+          mkdir -p release_info
+          echo '{"branch":"${{ github.event.workflow_run.head_branch }}","sha":"${{ github.event.workflow_run.head_sha }}","time":"${{ github.event.workflow_run.updated_at }}","scope":["project_1"]}' > release_info/release_info.json
+
+      - name: upload release info
+        uses: actions/upload-artifact@v3
+        with:
+          name: release_info_project_1
+          path: release_info/release_info.json
