@@ -1,7 +1,4 @@
-"""
-Register/copy Silver tables from Hadoop catalog to REST catalog so Trino/dbt can access them.
-Uses a single SparkSession configured with two catalogs.
-"""
+"""Register Silver tables from Hadoop catalog to REST catalog."""
 from __future__ import annotations
 
 from pyspark.sql import SparkSession

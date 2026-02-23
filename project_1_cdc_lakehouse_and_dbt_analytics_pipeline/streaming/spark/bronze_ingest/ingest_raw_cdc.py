@@ -1,12 +1,4 @@
-"""
-Bronze (raw_cdc) ingest entrypoint for Project 1.
-
-- Append-only ingestion from Kafka Debezium topics -> Iceberg raw_cdc
-- Kafka metadata + envelope + event_uid / entity_key / ordering_key
-- Checkpoint for recovery; contract validation (fail fast)
-
-Run via spark-submit with PYTHONPATH=$PROJECT_ROOT.
-"""
+"""Bronze raw_cdc ingest entrypoint."""
 from __future__ import annotations
 
 import os

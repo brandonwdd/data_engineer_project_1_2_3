@@ -1,1 +1,1 @@
-# Silver merge: Bronze -> Silver entity tables (MERGE INTO, idempotent).
+# Silver merge batch jobs (Bronze CDC to Silver tables)

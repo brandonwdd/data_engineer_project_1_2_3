@@ -1,13 +1,4 @@
-"""
-Airflow DAG: Metric Publish Quality Gate
-Enforces quality gates before publishing metrics API and Reverse ETL
-
-Flow:
-1. Run dbt tests
-2. Check completeness
-3. Insert release log
-4. Publish (API + Reverse ETL)
-"""
+"""Airflow DAG quality gate for metric publishing."""
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator

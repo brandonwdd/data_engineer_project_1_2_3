@@ -1,7 +1,4 @@
-"""
-Reverse ETL: Publish user segments to Kafka
-Keyed by user_id to preserve per-user ordering
-"""
+"""Reverse ETL publishing user segments to Kafka."""
 
 from kafka import KafkaProducer
 from kafka.errors import KafkaError

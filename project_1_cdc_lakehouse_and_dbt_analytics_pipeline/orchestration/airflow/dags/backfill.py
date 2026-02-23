@@ -1,6 +1,4 @@
-"""
-Airflow DAG: Backfill job (reprocess Bronze -> Silver/Gold for a time window).
-"""
+"""Airflow DAG for backfill of Bronze to Silver/Gold."""
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator

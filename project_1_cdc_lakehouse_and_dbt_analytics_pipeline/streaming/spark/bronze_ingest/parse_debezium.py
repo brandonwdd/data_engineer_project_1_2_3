@@ -1,7 +1,4 @@
-"""
-Parse Debezium CDC events, build entity_key / ordering_key, and validate via contracts.
-Quality-first: validation failures raise (fail fast).
-"""
+"""Parse Debezium CDC events with contract validation."""
 from __future__ import annotations
 
 import json

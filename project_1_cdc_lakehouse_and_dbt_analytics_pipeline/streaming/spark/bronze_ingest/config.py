@@ -1,6 +1,4 @@
-"""
-Bronze ingest configuration. Centralized so docker/local runs are consistent.
-"""
+"""Bronze ingest configuration."""
 from __future__ import annotations
 
 import os

@@ -1,1 +1,1 @@
-# Bronze ingest unit tests.
+# Tests for Bronze and Silver streaming logic

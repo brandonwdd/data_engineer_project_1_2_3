@@ -1,1 +1,1 @@
-# Bronze Ingest Package
+# Bronze ingest streaming jobs (Kafka Debezium to Iceberg)

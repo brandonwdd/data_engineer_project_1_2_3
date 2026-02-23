@@ -1,7 +1,4 @@
-"""
-Bronze ingest job: Kafka (Debezium) -> parse & validate -> Iceberg raw_cdc.
-At-least-once, checkpoint-based recovery, quality-first (fail fast on contract violation).
-"""
+"""Bronze ingest job from Kafka to Iceberg."""
 from __future__ import annotations
 
 from typing import Any, Iterator, Optional

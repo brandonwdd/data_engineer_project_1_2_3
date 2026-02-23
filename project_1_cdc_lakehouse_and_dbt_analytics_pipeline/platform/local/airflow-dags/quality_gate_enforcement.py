@@ -1,14 +1,4 @@
-"""
-Airflow DAG: Quality Gate Enforcement
-Enforces data quality gates before publishing data
-
-Flow:
-1. Validate contracts
-2. Run dbt tests (Project 1 + Project 2)
-3. Run custom quality checks
-4. Check completeness
-5. Block or allow publishing
-"""
+"""Airflow DAG enforcing data quality gates."""
 
 from airflow import DAG
 from airflow.operators.bash import BashOperator

@@ -1,7 +1,4 @@
-"""
-Data Contract Validator
-Validates CDC and Metrics contracts against actual data
-"""
+"""Data contract validator for CDC and metrics."""
 
 import yaml
 import json

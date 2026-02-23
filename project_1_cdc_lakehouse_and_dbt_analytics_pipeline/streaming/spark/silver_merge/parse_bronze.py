@@ -1,6 +1,4 @@
-"""
-Parse Bronze events into Silver rows. Extract fields from after/before JSON.
-"""
+"""Parse Bronze events into Silver rows."""
 from __future__ import annotations
 
 import json

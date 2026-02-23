@@ -1,6 +1,4 @@
-"""
-Unit tests for contract validation. Quality-first: invalid events must raise.
-"""
+"""Unit tests for CDC contract validation."""
 from __future__ import annotations
 
 import json

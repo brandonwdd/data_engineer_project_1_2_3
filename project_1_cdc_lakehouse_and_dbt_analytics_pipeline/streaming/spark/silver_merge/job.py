@@ -1,7 +1,4 @@
-"""
-Silver merge job: Read Bronze -> dedupe by ordering_key -> MERGE INTO Silver tables.
-Idempotent: same Bronze window processed multiple times yields same Silver state.
-"""
+"""Silver merge job from Bronze to Silver tables."""
 from __future__ import annotations
 
 from datetime import datetime, timezone

@@ -1,7 +1,4 @@
-"""
-Airflow DAG: Quality gate for CDC pipeline.
-Runs dbt tests; fails if any test fails (blocks downstream publishing).
-"""
+"""Airflow DAG quality gate for the CDC pipeline."""
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator

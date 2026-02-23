@@ -1,7 +1,4 @@
-"""
-Airflow DAG: Reconciliation check (Bronze/Silver/Gold consistency).
-Validates data correctness across layers.
-"""
+"""Airflow DAG for Bronze/Silver/Gold reconciliation checks."""
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator

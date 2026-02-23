@@ -1,7 +1,4 @@
-"""
-Metrics API Service
-Provides versioned KPI and user segment queries via FastAPI + Trino
-"""
+"""Metrics API for KPIs and user segments."""
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import JSONResponse

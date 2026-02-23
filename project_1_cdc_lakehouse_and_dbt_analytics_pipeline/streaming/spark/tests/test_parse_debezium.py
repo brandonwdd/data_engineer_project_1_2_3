@@ -1,6 +1,4 @@
-"""
-Unit tests for Debezium parsing and ordering_key / entity_key construction.
-"""
+"""Unit tests for Debezium parsing utilities."""
 from __future__ import annotations
 
 import json

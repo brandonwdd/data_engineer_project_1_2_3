@@ -1,7 +1,4 @@
-"""
-Contract validation for CDC events. Quality-first: fail fast on violation.
-Loads contracts from YAML; validates required envelope fields, op, after/before, PK.
-"""
+"""CDC contract validation for Debezium events."""
 from __future__ import annotations
 
 import json

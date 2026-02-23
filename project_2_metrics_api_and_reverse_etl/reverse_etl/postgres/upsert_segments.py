@@ -1,8 +1,4 @@
-"""
-Reverse ETL: Upsert user segments to Postgres
-Idempotent upsert with source_run_id tracking
-Uses psycopg (v3) for Python 3.13 compatibility on Windows.
-"""
+"""Reverse ETL upserting user segments to Postgres."""
 
 import psycopg
 from datetime import date, datetime, timezone

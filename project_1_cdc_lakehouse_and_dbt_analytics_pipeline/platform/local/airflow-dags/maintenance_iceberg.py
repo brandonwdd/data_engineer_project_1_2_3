@@ -1,7 +1,4 @@
-"""
-Airflow DAG: Iceberg maintenance (compact, expire snapshots, remove orphans).
-Runs daily to keep Iceberg tables healthy (small file compaction, snapshot expiration).
-"""
+"""Airflow DAG for daily Iceberg maintenance."""
 from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.operators.bash import BashOperator

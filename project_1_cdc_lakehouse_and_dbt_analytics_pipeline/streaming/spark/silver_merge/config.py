@@ -1,6 +1,4 @@
-"""
-Silver merge configuration. Reads from Bronze, merges into Silver entity tables.
-"""
+"""Silver merge configuration."""
 from __future__ import annotations
 
 import os

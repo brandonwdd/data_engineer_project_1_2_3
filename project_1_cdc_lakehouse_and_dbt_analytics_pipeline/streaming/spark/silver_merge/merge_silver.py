@@ -1,6 +1,4 @@
-"""
-Silver merge entrypoint: Bronze -> Silver entity tables (MERGE INTO, idempotent).
-"""
+"""Silver merge entrypoint from Bronze to Silver."""
 from __future__ import annotations
 
 import os
