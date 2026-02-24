@@ -1,6 +1,10 @@
-# Data Engineer Portfolio — Projects 1, 2, 3
+# Data Engineer Portfolio
 
 This repository contains three production-grade data engineering projects: **CDC Lakehouse + dbt** (P1), **Metrics API + Reverse ETL** (P2), and **Data Contracts + Quality Gates** (P3). Each section below follows the same structure (Overview, Data & Problem Setup, System Design, Key Methods, API/Outputs, Results, Future Directions, PowerShell run).
+
+**P1 pipeline**: PostgreSQL → Debezium → Kafka → Spark Bronze (Iceberg) → Silver MERGE → dbt Gold (mart).  
+**P2 pipeline**: P1 Gold → dbt semantic layer (mart_kpis_daily_v1, mart_user_segments) → Metrics API (Trino) + Reverse ETL (Postgres/Kafka).  
+**P3 pipeline**: Contract validation (CDC/metrics YAML) + unified quality-gate DAG (dbt test / custom checks / completeness) + CI (PR gating).
 
 ---
 
