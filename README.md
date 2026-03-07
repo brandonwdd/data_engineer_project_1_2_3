@@ -227,7 +227,9 @@ dbt run
 dbt test
 ```
 
-For full reset: `docker compose down -v` then `docker compose up -d`. See `project_1_cdc_lakehouse_and_dbt_analytics_pipeline/README.md` and `platform/local/README.md` for more options (e.g. Makefile, acceptance tests, demo scripts).
+For full reset: `docker compose down -v` then `docker compose up -d`. 
+
+See `project_1_cdc_lakehouse_and_dbt_analytics_pipeline/README.md` and `platform/local/README.md` for more options (e.g. Makefile, acceptance tests, demo scripts).
 
 ---
 
