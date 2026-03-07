@@ -1,10 +1,14 @@
 # Data Engineer Portfolio
 
-This repository contains three production-grade data engineering projects: **CDC Lakehouse + dbt** (P1), **Metrics API + Reverse ETL** (P2), and **Data Contracts + Quality Gates** (P3). Each section below follows the same structure (Overview, Data & Problem Setup, System Design, Key Methods, API/Outputs, Results, Future Directions, PowerShell run).
+This repository contains three production-grade data engineering projects: **CDC Lakehouse + dbt** (Project 1), **Metrics API + Reverse ETL** (Project 2), and **Data Contracts + Quality Gates** (Project 3).
 
-**P1 pipeline**: PostgreSQL → Debezium → Kafka → Spark Bronze (Iceberg) → Silver MERGE → dbt Gold (mart).  
-**P2 pipeline**: P1 Gold → dbt semantic layer (mart_kpis_daily_v1, mart_user_segments) → Metrics API (Trino) + Reverse ETL (Postgres/Kafka).  
-**P3 pipeline**: Contract validation (CDC/metrics YAML) + unified quality-gate DAG (dbt test / custom checks / completeness) + CI (PR gating).
+Each section below follows the same structure: Overview, Data & Problem Setup, System Design, Key Methods, API/Outputs, Results, Future Directions, and PowerShell run.
+
+| Project | Pipeline |
+|---------|----------|
+| **P1** | PostgreSQL → Debezium → Kafka → Spark Bronze (Iceberg) → Silver MERGE → dbt Gold (mart). |
+| **P2** | Project1 Gold Layer → dbt semantic layer (mart_kpis_daily_v1, mart_user_segments) → Metrics API (Trino) + Reverse ETL (Postgres/Kafka). |
+| **P3** | Contract validation (CDC/metrics YAML) + unified quality-gate DAG (dbt test / custom checks / completeness) + CI (PR gating). |
 
 ---
 
@@ -36,7 +40,7 @@ This repository contains three production-grade data engineering projects: **CDC
   - **Ordering**: Deterministic `ordering_key` (lsn → updated_at → partition|offset) for dedupe and idempotent merge.
   - **Contracts**: YAML contracts per entity (PK, required fields, op semantics, evolution) so invalid events fail fast at ingest.
 
-#### 2.1 Kafka topics (Debezium)
+#### 2.1 Kafka topics - Debezium
 
 After the Debezium connector is registered, Kafka has one topic per table:
 
@@ -54,7 +58,7 @@ After the Debezium connector is registered, Kafka has one topic per table:
 
 ---
 
-### 3. System Design & Modules (`project_1_cdc_lakehouse_and_dbt_analytics_pipeline`)
+### 3. System Design & Modules
 
 - **3.1 Infrastructure – `infra/`**
   - `infra/sql/project1.sql`: Postgres DDL (users, orders, payments) and `wal_level=logical`.
@@ -114,7 +118,7 @@ After the Debezium connector is registered, Kafka has one topic per table:
 - **Contract-first ingest**
   - Events validated in the streaming job (mapInPandas); violation raises and stops the job so bad data does not land.
 
-- **Algorithms / patterns**
+- **Algorithms + Patterns**
   - **Bronze**: Spark readStream (Kafka) → mapInPandas (parse_debezium + contract_validate) → writeStream Iceberg; checkpoint for exactly-once semantics and recovery.
   - **Silver**: Batch read Bronze → window (ROW_NUMBER by entity_key, ORDER BY ordering_key DESC) → take latest → split op='d' (DELETE) vs c/u/r (MERGE INTO with ordering_key comparison).
   - **Gold**: dbt with Trino (or Spark SQL) against Iceberg; materializations: view (stg/int), table (mart).
@@ -135,7 +139,7 @@ After the Debezium connector is registered, Kafka has one topic per table:
   - **Silver**: `iceberg.silver.users`, `iceberg.silver.orders`, `iceberg.silver.payments` — current state per entity.
   - **Gold**: `iceberg.mart.dim_users`, `iceberg.mart.fct_orders`, `iceberg.mart.fct_payments`, `iceberg.mart.mart_kpis_daily` — analytics marts.
 
-- **Example queries (Trino, schema names may vary by dbt profile)**
+- **Example queries**
   - Recent daily KPIs:
     ```sql
     SELECT * FROM iceberg.mart.mart_kpis_daily ORDER BY kpi_date DESC LIMIT 10;
@@ -266,7 +270,7 @@ For full reset: `docker compose down -v` then `docker compose up -d`. See `proje
 
 ---
 
-### 3. System Design & Modules (`project_2_metrics_api_and_reverse_etl`)
+### 3. System Design & Modules
 
 - **3.1 Analytics layer – `analytics/dbt/`**
   - **Staging**: `models/stg/stg_kpis_daily.sql`, `stg_users.sql`, `stg_orders.sql`, `stg_payments.sql` — direct ref to Project 1 Gold (iceberg.mart.*).
@@ -431,7 +435,7 @@ See `project_2_metrics_api_and_reverse_etl/README.md` and `RUN_LOCAL.md` for ful
   - **Contracts first**: Define expected shape and rules before code changes; validator fails fast on invalid events or contract files.
   - **Single gate**: One DAG that runs all checks (contracts, dbt, custom SQL, completeness); release only if all pass.
 
-#### 2.1 Quality gate steps (Airflow DAG)
+#### 2.1 Quality gate steps - Airflow DAG
 
 | Step | Description | Blocking |
 |------|-------------|----------|
@@ -444,7 +448,7 @@ See `project_2_metrics_api_and_reverse_etl/README.md` and `RUN_LOCAL.md` for ful
 
 ---
 
-### 3. System Design & Modules (`project_3_data_contracts_and_quality_gates`)
+### 3. System Design & Modules
 
 - **3.1 Contracts – `contracts/`**
   - `cdc/`: users.yaml, orders.yaml, payments.yaml — CDC event contracts.
