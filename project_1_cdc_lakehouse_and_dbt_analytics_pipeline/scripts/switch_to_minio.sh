@@ -21,7 +21,7 @@ export S3_SECRET_KEY="minioadmin"
 export S3_PATH_STYLE="true"
 EOF
 
-echo "✅ MinIO configuration saved to: $ENV_FILE"
+echo "MinIO configuration saved to: $ENV_FILE"
 echo ""
 echo "To use MinIO configuration:"
 echo "  source $ENV_FILE"

@@ -1,19 +1,19 @@
 # Project 3: Data Contracts + Quality Gates + CI (Production-Grade Governance)
 
-## 🚀 Status — v1.0 (Production-Ready)
+## Status — v1.0 (Production-Ready)
 
-- **v0.1** ✅: **Contract validator** — Python tool for CDC and Metrics contracts
-- **v0.2** ✅: **Quality gate Airflow DAG** — dbt tests, custom checks, blocking
-- **v0.3** ✅: **GitHub Actions CI** — lint, unit tests, dbt compile/test, contract validation
-- **v0.4** ✅: **Demo scripts** — `demo_contract_violation.sh`, `demo_quality_gate_failure.sh`, `demo_release_block.sh`
-- **v0.5** ✅: **Contract definitions** — CDC and Metrics YAML (orders, payments, users, kpis, user_segments)
-- **v0.6** ✅: **Docs** — README, architecture, SLO, runbook
+- **v0.1**: **Contract validator** — Python tool for CDC and Metrics contracts
+- **v0.2**: **Quality gate Airflow DAG** — dbt tests, custom checks, blocking
+- **v0.3**: **GitHub Actions CI** — lint, unit tests, dbt compile/test, contract validation
+- **v0.4**: **Demo scripts** — `demo_contract_violation.sh`, `demo_quality_gate_failure.sh`, `demo_release_block.sh`
+- **v0.5**: **Contract definitions** — CDC and Metrics YAML (orders, payments, users, kpis, user_segments)
+- **v0.6**: **Docs** — README, architecture, SLO, runbook
 
 **~98% complete** (implementation 100%, docs done; remaining: runtime verification)
 
 ---
 
-## 🛠️ Tech stack
+## Tech stack
 
 ### Core
 - **Python** 3.11+ — contract validator, quality checks
@@ -32,7 +32,7 @@ See `docs/architecture.md` for details.
 
 ---
 
-## 📊 Governance flow
+## Governance flow
 
 ```
 Code change (PR)
@@ -58,7 +58,7 @@ See [`docs/architecture.md`](docs/architecture.md) for architecture.
 
 ---
 
-## 🎯 Features
+## Features
 
 ### 1. Data contracts
 
@@ -97,7 +97,7 @@ See [`docs/architecture.md`](docs/architecture.md) for architecture.
 
 ---
 
-## 📁 Layout
+## Layout
 
 ```
 project_3_data_contracts_and_quality_gates/
@@ -175,7 +175,7 @@ Script will: sync P3 DAG to platform, optional local contract validation, check 
 
 ---
 
-## 🚀 Quick start
+## Quick start
 
 ### Prerequisites
 
@@ -223,17 +223,17 @@ python contract_validator.py --contracts-dir ../../contracts
 
 ---
 
-## 📋 Acceptance criteria
+## Acceptance criteria
 
-- ✅ **Contract validation**: All contracts valid, events conform
-- ✅ **Quality gates**: dbt tests, custom checks, completeness pass
-- ✅ **Release blocking**: Any gate failure → block release
-- ✅ **CI**: All checks must pass before PR merge
-- ✅ **Traceability**: Validation results in logs/reports
+- **Contract validation**: All contracts valid, events conform
+- **Quality gates**: dbt tests, custom checks, completeness pass
+- **Release blocking**: Any gate failure → block release
+- **CI**: All checks must pass before PR merge
+- **Traceability**: Validation results in logs/reports
 
 ---
 
-## 🔒 Quality gate flow
+## Quality gate flow
 
 ### Airflow DAG: `quality_gate_enforcement`
 
@@ -254,7 +254,7 @@ python contract_validator.py --contracts-dir ../../contracts
 
 ---
 
-## 📈 CI pipeline
+## CI pipeline
 
 ### GitHub Actions
 
@@ -271,7 +271,7 @@ python contract_validator.py --contracts-dir ../../contracts
 
 ---
 
-## 🧪 Demo scripts
+## Demo scripts
 
 ### 1. `demo_contract_violation.sh`
 Contract validation: valid event → pass; invalid → fail; validate all contracts.
@@ -284,7 +284,7 @@ Release blocking: run all gates; show block decision; generate report.
 
 ---
 
-## 📚 Docs
+## Docs
 
 - [`docs/architecture.md`](docs/architecture.md) — Architecture
 - [`docs/slo.md`](docs/slo.md) — SLO
@@ -294,7 +294,7 @@ Release blocking: run all gates; show block decision; generate report.
 
 ---
 
-## 🔗 Integration with Project 1 and 2
+## Integration with Project 1 and 2
 
 ### Project 1
 - Contract validation for CDC events; dbt tests; data quality checks.
@@ -307,7 +307,7 @@ Release blocking: run all gates; show block decision; generate report.
 
 ---
 
-## ✅ Status
+## Status
 
 ### Done
 - [x] Contract validator (Python)
@@ -324,7 +324,7 @@ Release blocking: run all gates; show block decision; generate report.
 
 ---
 
-## 🎯 Principles
+## Principles
 
 1. **Contracts first**: Define before changes
 2. **Strict gates**: Any failure blocks release
@@ -334,6 +334,6 @@ Release blocking: run all gates; show block decision; generate report.
 
 ---
 
-## 📝 License
+## License
 
 Same as Project 1 and Project 2

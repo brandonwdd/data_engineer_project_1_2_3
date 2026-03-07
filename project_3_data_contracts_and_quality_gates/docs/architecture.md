@@ -132,19 +132,11 @@ Release decision
 1. Developer submits PR
    ↓
 2. GitHub Actions CI runs
-   ├─ Lint ✅
-   ├─ Contract validation ✅
-   ├─ Unit tests ✅
-   └─ dbt Compile ✅
-   ↓
+   ├─ Lint    ├─ Contract validation    ├─ Unit tests    └─ dbt Compile    ↓
 3. PR merged
    ↓
 4. Airflow quality gate runs
-   ├─ Contract validation ✅
-   ├─ dbt tests ✅
-   ├─ Custom checks ✅
-   └─ Completeness ✅
-   ↓
+   ├─ Contract validation    ├─ dbt tests    ├─ Custom checks    └─ Completeness    ↓
 5. All gates pass → release allowed
 ```
 
@@ -154,7 +146,7 @@ Release decision
 1. Developer submits PR
    ↓
 2. GitHub Actions CI runs
-   └─ Contract validation ❌ (fails)
+   └─ Contract validation  (fails)
    ↓
 3. PR cannot merge (blocked)
    ↓
@@ -167,7 +159,7 @@ Or
 
 ```
 1. Airflow quality gate runs
-   └─ dbt tests ❌ (fails)
+   └─ dbt tests  (fails)
    ↓
 2. DAG fails → release blocked
    ↓

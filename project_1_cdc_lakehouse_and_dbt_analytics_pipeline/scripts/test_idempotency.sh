@@ -24,7 +24,7 @@ echo "" >> "$REPORT_FILE"
 
 # Check environment
 if ! docker ps | grep -q minio; then
-    echo "❌ Error: MinIO not running, start environment first" | tee -a "$REPORT_FILE"
+    echo "[FAIL] Error: MinIO not running, start environment first" | tee -a "$REPORT_FILE"
     echo "Run: cd $PLATFORM_DIR && docker compose --profile bronze up -d" | tee -a "$REPORT_FILE"
     exit 1
 fi
@@ -205,7 +205,7 @@ checksums_str = sys.argv[1].split('\n')[:-1]  # Remove last empty line
 checksums = [json.loads(c) for c in checksums_str if c.strip()]
 
 if len(checksums) < 2:
-    print("❌ Error: Need at least 2 runs for comparison")
+    print("[FAIL] Error: Need at least 2 runs for comparison")
     sys.exit(1)
 
 # Compare all checksums
@@ -214,23 +214,23 @@ baseline = checksums[0]
 
 for i, checksum in enumerate(checksums[1:], start=1):
     if checksum.get("silver_count") != baseline.get("silver_count"):
-        print(f"❌ Run {i+1} silver_count mismatch: {checksum.get('silver_count')} != {baseline.get('silver_count')}")
+        print(f"[FAIL] Run {i+1} silver_count mismatch: {checksum.get('silver_count')} != {baseline.get('silver_count')}")
         all_match = False
     
     if abs(checksum.get("silver_total", 0) - baseline.get("silver_total", 0)) > 0.01:
-        print(f"❌ Run {i+1} silver_total mismatch: {checksum.get('silver_total')} != {baseline.get('silver_total')}")
+        print(f"[FAIL] Run {i+1} silver_total mismatch: {checksum.get('silver_total')} != {baseline.get('silver_total')}")
         all_match = False
     
     if checksum.get("gold_gmv") is not None and baseline.get("gold_gmv") is not None:
         if abs(checksum.get("gold_gmv", 0) - baseline.get("gold_gmv", 0)) > 0.01:
-            print(f"❌ Run {i+1} gold_gmv mismatch: {checksum.get('gold_gmv')} != {baseline.get('gold_gmv')}")
+            print(f"[FAIL] Run {i+1} gold_gmv mismatch: {checksum.get('gold_gmv')} != {baseline.get('gold_gmv')}")
             all_match = False
 
 if all_match:
-    print("✅ All checksums match, idempotency test passed!")
+    print("[OK] All checksums match, idempotency test passed!")
     sys.exit(0)
 else:
-    print("❌ Checksums mismatch, idempotency test failed!")
+    print("[FAIL] Checksums mismatch, idempotency test failed!")
     sys.exit(1)
 PYTHON_EOF
 "$(printf '%s\n' "${checksums[@]}")" | tee -a "$REPORT_FILE"
@@ -241,11 +241,11 @@ echo "" >> "$REPORT_FILE"
 echo "## Test Summary" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 if [ $EXIT_CODE -eq 0 ]; then
-    echo "✅ Idempotency test passed: repeated $N_RUNS times, checksum unchanged" >> "$REPORT_FILE"
-    echo "✅ Idempotency test passed!"
+    echo "[OK] Idempotency test passed: repeated $N_RUNS times, checksum unchanged" >> "$REPORT_FILE"
+    echo "[OK] Idempotency test passed!"
 else
-    echo "❌ Idempotency test failed: checksum mismatch" >> "$REPORT_FILE"
-    echo "❌ Idempotency test failed, see: $REPORT_FILE"
+    echo "[FAIL] Idempotency test failed: checksum mismatch" >> "$REPORT_FILE"
+    echo "[FAIL] Idempotency test failed, see: $REPORT_FILE"
 fi
 
 exit $EXIT_CODE

@@ -25,10 +25,10 @@ pip install -q -r requirements.txt 2>/dev/null || true
 python contract_validator.py \
   --contracts-dir "$PROJECT_ROOT/project_3_data_contracts_and_quality_gates/contracts" \
   > "$EVIDENCE_DIR/${TIMESTAMP}_contract_validation.log" 2>&1 && {
-    echo "  ✅ Contracts valid"
+    echo "   Contracts valid"
     CONTRACT_STATUS="passed"
 } || {
-    echo "  ❌ Contracts invalid - RELEASE BLOCKED"
+    echo "   Contracts invalid - RELEASE BLOCKED"
     CONTRACT_STATUS="failed"
     cat "$EVIDENCE_DIR/${TIMESTAMP}_contract_validation.log"
 }
@@ -39,10 +39,10 @@ echo "Step 2: Running Project 1 dbt tests..."
 cd "$PROJECT_ROOT/project_1_cdc_lakehouse_and_dbt_analytics_pipeline/analytics/dbt"
 dbt test --profiles-dir . --project-dir . \
   > "$EVIDENCE_DIR/${TIMESTAMP}_dbt_project1.log" 2>&1 && {
-    echo "  ✅ Project 1 dbt tests passed"
+    echo "   Project 1 dbt tests passed"
     DBT1_STATUS="passed"
 } || {
-    echo "  ❌ Project 1 dbt tests failed - RELEASE BLOCKED"
+    echo "   Project 1 dbt tests failed - RELEASE BLOCKED"
     DBT1_STATUS="failed"
 }
 
@@ -52,10 +52,10 @@ echo "Step 3: Running Project 2 dbt tests..."
 cd "$PROJECT_ROOT/project_2_metrics_api_and_reverse_etl/analytics/dbt"
 dbt test --profiles-dir . --project-dir . \
   > "$EVIDENCE_DIR/${TIMESTAMP}_dbt_project2.log" 2>&1 && {
-    echo "  ✅ Project 2 dbt tests passed"
+    echo "   Project 2 dbt tests passed"
     DBT2_STATUS="passed"
 } || {
-    echo "  ❌ Project 2 dbt tests failed - RELEASE BLOCKED"
+    echo "   Project 2 dbt tests failed - RELEASE BLOCKED"
     DBT2_STATUS="failed"
 }
 
@@ -63,7 +63,7 @@ dbt test --profiles-dir . --project-dir . \
 echo ""
 echo "Step 4: Checking completeness..."
 # Placeholder - would check partition completeness
-echo "  ✓ Completeness check (placeholder)"
+echo "  [OK] Completeness check (placeholder)"
 
 # Step 5: Final decision
 echo ""
@@ -74,32 +74,32 @@ echo "=========================================="
 ALL_PASSED=true
 
 if [ "$CONTRACT_STATUS" != "passed" ]; then
-    echo "  ❌ Contract validation: FAILED"
+    echo "   Contract validation: FAILED"
     ALL_PASSED=false
 else
-    echo "  ✅ Contract validation: PASSED"
+    echo "   Contract validation: PASSED"
 fi
 
 if [ "$DBT1_STATUS" != "passed" ]; then
-    echo "  ❌ Project 1 dbt tests: FAILED"
+    echo "   Project 1 dbt tests: FAILED"
     ALL_PASSED=false
 else
-    echo "  ✅ Project 1 dbt tests: PASSED"
+    echo "   Project 1 dbt tests: PASSED"
 fi
 
 if [ "$DBT2_STATUS" != "passed" ]; then
-    echo "  ❌ Project 2 dbt tests: FAILED"
+    echo "   Project 2 dbt tests: FAILED"
     ALL_PASSED=false
 else
-    echo "  ✅ Project 2 dbt tests: PASSED"
+    echo "   Project 2 dbt tests: PASSED"
 fi
 
 echo ""
 if [ "$ALL_PASSED" = true ]; then
-    echo "✅ ALL GATES PASSED - Release allowed"
+    echo " ALL GATES PASSED - Release allowed"
     RELEASE_DECISION="allow"
 else
-    echo "❌ GATES FAILED - Release BLOCKED"
+    echo " GATES FAILED - Release BLOCKED"
     RELEASE_DECISION="block"
 fi
 
@@ -123,9 +123,9 @@ cat > "$EVIDENCE_DIR/${TIMESTAMP}_release_block_summary.md" << EOF
 **Decision**: $RELEASE_DECISION
 
 $(if [ "$ALL_PASSED" = true ]; then
-    echo "✅ All quality gates passed - publishing allowed"
+    echo " All quality gates passed - publishing allowed"
 else
-    echo "❌ Quality gates failed - publishing blocked"
+    echo " Quality gates failed - publishing blocked"
 fi)
 
 ## Artifacts

@@ -41,9 +41,9 @@ Write-Host ""
 Write-Host "[1/7] Environment (.env)..." -ForegroundColor Yellow
 if (-not (Test-Path (Join-Path $ProjectRoot ".env"))) {
     Copy-Item (Join-Path $ProjectRoot "env.example") (Join-Path $ProjectRoot ".env")
-    Write-Host "  ✓ Created .env from env.example (TRINO_HOST=localhost, TRINO_SCHEMA=mart_mart)" -ForegroundColor Gray
+    Write-Host "  [OK] Created .env from env.example (TRINO_HOST=localhost, TRINO_SCHEMA=mart_mart)" -ForegroundColor Gray
 } else {
-    Write-Host "  ✓ .env already exists" -ForegroundColor Gray
+    Write-Host "  [OK] .env already exists" -ForegroundColor Gray
 }
 Load-DotEnv
 # When running dbt locally, connect to Trino using localhost, schema must be mart_mart (consistent with P1 Gold)
@@ -57,7 +57,7 @@ Write-Host "[2/7] customer_segments table (Reverse ETL target)..." -ForegroundCo
 $P2Sql = Join-Path $P1Local "sql\02-customer_segments.sql"
 if (Test-Path $P2Sql) {
     Get-Content $P2Sql -Raw | docker exec -i postgres psql -U postgres -d project1 2>&1 | Out-Null
-    Write-Host "  ✓ customer_segments created/already exists" -ForegroundColor Gray
+    Write-Host "  [OK] customer_segments created/already exists" -ForegroundColor Gray
 } else {
     Write-Host "  ⊘ $P2Sql not found, skipping (please run project_1_cdc_lakehouse_and_dbt_analytics_pipeline setup first)" -ForegroundColor Gray
 }
@@ -76,19 +76,19 @@ try {
     pip install -q dbt-trino 2>$null
     & $dbtExe deps --profiles-dir . --project-dir .
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "  ✗ dbt deps failed" -ForegroundColor Red
+        Write-Host "  [FAIL] dbt deps failed" -ForegroundColor Red
         exit 1
     }
     & $dbtExe run --profiles-dir . --project-dir .
     if ($LASTEXITCODE -ne 0) {
-        Write-Host "  ✗ dbt run failed (please confirm project_1_cdc_lakehouse_and_dbt_analytics_pipeline completed, Trino has iceberg.mart_mart.fct_orders etc.)" -ForegroundColor Red
+        Write-Host "  [FAIL] dbt run failed (please confirm project_1_cdc_lakehouse_and_dbt_analytics_pipeline completed, Trino has iceberg.mart_mart.fct_orders etc.)" -ForegroundColor Red
         exit 1
     }
     & $dbtExe test --profiles-dir . --project-dir .
     if ($LASTEXITCODE -ne 0) {
         Write-Host "  Warning: dbt test has failures, can retry later" -ForegroundColor Yellow
     } else {
-        Write-Host "  ✓ dbt completed (7 models + 21 tests)" -ForegroundColor Green
+        Write-Host "  [OK] dbt completed (7 models + 21 tests)" -ForegroundColor Green
     }
 } finally {
     Pop-Location
@@ -106,7 +106,7 @@ if (Test-Path $MetricsReq) {
         Write-Host "  Warning: Metrics API dependency installation failed, can do later: cd services\metrics_api && pip install -r requirements.txt" -ForegroundColor Yellow
     } else {
         Start-Process -FilePath "python" -ArgumentList "-m", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000" -WorkingDirectory $MetricsApiDir -WindowStyle Hidden
-        Write-Host "  ✓ Metrics API started (background) http://localhost:8000/health" -ForegroundColor Gray
+        Write-Host "  [OK] Metrics API started (background) http://localhost:8000/health" -ForegroundColor Gray
     }
     Pop-Location
 } else {
@@ -126,7 +126,7 @@ if (Test-Path $ReverseEtlReq) {
     } else {
         python postgres/upsert_segments.py 2>&1 | Out-Host
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✓ Reverse ETL upsert completed" -ForegroundColor Gray
+            Write-Host "  [OK] Reverse ETL upsert completed" -ForegroundColor Gray
         } else {
             Write-Host "  Warning: upsert_segments.py exception (check Postgres/Trino and data)" -ForegroundColor Yellow
         }
@@ -145,7 +145,7 @@ if (Test-Path $DdlPath) {
     if ($LASTEXITCODE -eq 0) {
         docker exec trino trino -f /tmp/metric_release_log.sql 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "  ✓ metric_release_log created/already exists" -ForegroundColor Gray
+            Write-Host "  [OK] metric_release_log created/already exists" -ForegroundColor Gray
         } else {
             Write-Host "  ⊘ Trino DDL execution failed, DAG insert_release_log will skip writing" -ForegroundColor Gray
         }
@@ -162,7 +162,7 @@ Write-Host "[7/7] Airflow (trigger DAG to complete release gate)..." -Foreground
 Write-Host "  Open http://localhost:8081, login admin / admin, trigger DAG: metric_publish_gate" -ForegroundColor Gray
 try {
     Start-Process "http://localhost:8081"
-    Write-Host "  ✓ Attempted to open browser" -ForegroundColor Gray
+    Write-Host "  [OK] Attempted to open browser" -ForegroundColor Gray
 } catch {
     Write-Host "  Please manually open: http://localhost:8081" -ForegroundColor Gray
 }

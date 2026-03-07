@@ -1,16 +1,16 @@
 # Project 1 Pending Items
 
-## 📦 ~~Optional Components~~ ✅ **Completed**
+## ~~Optional Components~~  **Completed**
 
-### 1. ~~Terraform IaC~~ ✅ **Completed**
+### 1. ~~Terraform IaC~~  **Completed**
 
-**Status**: ✅ Implemented
+**Status**:  Implemented
 
 **Contents**:
-- ✅ AWS S3 bucket creation (production object storage)
-- ✅ IAM roles/policies (S3 access permissions)
-- ✅ MinIO/S3 switching support (dev env optional)
-- ✅ Switch scripts (switch_to_s3.sh, switch_to_minio.sh)
+-  AWS S3 bucket creation (production object storage)
+-  IAM roles/policies (S3 access permissions)
+-  MinIO/S3 switching support (dev env optional)
+-  Switch scripts (switch_to_s3.sh, switch_to_minio.sh)
 
 **Files**:
 - `infra/terraform/environments/prod/` — Production (S3 + IAM)
@@ -21,16 +21,16 @@
 
 ---
 
-### 2. ~~GitHub Actions CI/CD~~ ✅ **Completed**
+### 2. ~~GitHub Actions CI/CD~~  **Completed**
 
-**Status**: ✅ Implemented
+**Status**:  Implemented
 
 **Contents**:
-- ✅ PR trigger: lint (Python black/flake8, SQL dbt parse)
-- ✅ Unit tests: `pytest streaming/spark/tests` + coverage
-- ✅ dbt compile + test (schema tests)
-- ✅ Terraform validate (all environments)
-- ✅ Test reports and artifacts
+-  PR trigger: lint (Python black/flake8, SQL dbt parse)
+-  Unit tests: `pytest streaming/spark/tests` + coverage
+-  dbt compile + test (schema tests)
+-  Terraform validate (all environments)
+-  Test reports and artifacts
 
 **Files**:
 - `.github/workflows/ci.yml` — CI workflow
@@ -40,7 +40,7 @@
 
 ---
 
-## ⚠️ One Item to Verify (Evidence #3: Idempotency Acceptance)
+##  One Item to Verify (Evidence #3: Idempotency Acceptance)
 
 ### Issue: Idempotency acceptance needs runtime verification
 
@@ -51,9 +51,9 @@
 > Write N=3 or 5 in README, and script automatically runs 3 times.
 
 **Current implementation**:
-- ✅ Silver merge logic implements idempotency (ordering_key comparison)
-- ✅ `demo_replay_idempotency.sh` script created
-- ⚠️ **But hasn't been run yet**, cannot prove checksum really unchanged
+-  Silver merge logic implements idempotency (ordering_key comparison)
+-  `demo_replay_idempotency.sh` script created
+-  **But hasn't been run yet**, cannot prove checksum really unchanged
 
 **What to do**:
 
@@ -75,7 +75,7 @@
    - Fix issues, re-verify
 
 4. **If checksum matches**:
-   - ✅ Evidence #3 complete
+   -  Evidence #3 complete
    - Update README, state verified N=3 times, checksum unchanged
    - Save verification report to `recon/demo2_idempotency_validation_YYYY-MM-DD.txt`
 
@@ -86,18 +86,18 @@
 
 ---
 
-## 📊 Summary
+##  Summary
 
-### ✅ Completed (Code 100%)
-1. ✅ **Terraform IaC** — S3 bucket + IAM, supports MinIO/S3 switching
-2. ✅ **GitHub Actions CI/CD** — Lint, tests, dbt, terraform validate
+###  Completed (Code 100%)
+1.  **Terraform IaC** — S3 bucket + IAM, supports MinIO/S3 switching
+2.  **GitHub Actions CI/CD** — Lint, tests, dbt, terraform validate
 
-### ⚠️ Pending Verification (Runtime Testing)
+###  Pending Verification (Runtime Testing)
 - **Idempotency acceptance** (Evidence #3) — Must actually run `demo_replay_idempotency.sh` and verify checksum unchanged
 
 ---
 
-## 🎯 Next Steps (Test Verification)
+##  Next Steps (Test Verification)
 
 ### Must Complete (Evidence Verification)
 
@@ -120,7 +120,7 @@
 
 ---
 
-## ✅ Completion Criteria
+##  Completion Criteria
 
 ### Evidence #3 Completion Criteria:
 - [ ] Run `demo_replay_idempotency.sh` at least 3 times
@@ -129,7 +129,7 @@
 - [ ] Update README, state idempotency verified (N=3)
 
 ### Project Completion Criteria:
-- ✅ All code implemented
-- ✅ Terraform IaC completed
-- ✅ CI/CD completed
-- ⚠️ Runtime test verification (idempotency, demo scripts)
+-  All code implemented
+-  Terraform IaC completed
+-  CI/CD completed
+-  Runtime test verification (idempotency, demo scripts)

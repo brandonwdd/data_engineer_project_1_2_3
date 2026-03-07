@@ -27,22 +27,22 @@ cat > tests/test_demo_failure.sql << 'EOF'
 SELECT 1 WHERE 1 = 0
 EOF
 
-echo "  ✓ Created failing test"
+echo "  [OK] Created failing test"
 
 # Step 2: Run dbt tests (should fail)
 echo ""
 echo "Step 2: Running dbt tests (expected to fail)..."
 dbt test --profiles-dir . --project-dir . --select test_demo_failure \
   > "$EVIDENCE_DIR/${TIMESTAMP}_dbt_test_failure.log" 2>&1 && {
-    echo "  ❌ Test should have failed but passed (unexpected)"
+    echo "   Test should have failed but passed (unexpected)"
 } || {
-    echo "  ✅ Test correctly failed (as expected)"
+    echo "   Test correctly failed (as expected)"
     echo "  Quality gate would block publishing"
 }
 
 # Step 3: Clean up
 rm -f tests/test_demo_failure.sql
-echo "  ✓ Cleaned up test file"
+echo "  [OK] Cleaned up test file"
 
 # Step 4: Simulate custom quality check failure
 echo ""
@@ -55,7 +55,7 @@ LEFT JOIN iceberg.mart.fct_orders o ON p.order_id = o.order_id
 WHERE o.order_id IS NULL
 EOF
 
-echo "  ✓ Created custom check SQL"
+echo "  [OK] Created custom check SQL"
 
 # Step 5: Generate summary
 cat > "$EVIDENCE_DIR/${TIMESTAMP}_quality_gate_failure_summary.md" << EOF
@@ -65,14 +65,14 @@ cat > "$EVIDENCE_DIR/${TIMESTAMP}_quality_gate_failure_summary.md" << EOF
 
 ## Scenarios Tested
 
-1. **dbt Test Failure**: ✅ Correctly detected and would block publishing
+1. **dbt Test Failure**:  Correctly detected and would block publishing
 2. **Custom Quality Check**: Simulated referential integrity violation
 
 ## Quality Gate Behavior
 
-- ✅ dbt tests failure → Publishing blocked
-- ✅ Custom checks failure → Publishing blocked
-- ✅ Airflow DAG would fail → Downstream tasks not executed
+-  dbt tests failure → Publishing blocked
+-  Custom checks failure → Publishing blocked
+-  Airflow DAG would fail → Downstream tasks not executed
 
 ## Artifacts
 

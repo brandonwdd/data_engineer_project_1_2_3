@@ -1,21 +1,21 @@
 # Project 1: Real-time CDC Lakehouse (Production-Grade Pipeline)
 
-## 🚀 Status — v1.0 (Production-Ready)
+## Status — v1.0 (Production-Ready)
 
-- **v0.1** ✅: Local CDC infra (Postgres → Debezium → Kafka) + CDC contracts
-- **v0.2** ✅: **Bronze ingest** — Spark Structured Streaming reads Debezium from Kafka, contract validation (fail-fast), writes to Iceberg `bronze.raw_cdc` (MinIO). Includes `event_uid`, `entity_key`, `ordering_key`, Kafka metadata, checkpoint recovery.
-- **v0.3** ✅: **Silver layer** — Reads from Bronze, MERGE INTO by `ordering_key`, delete (op='d') support, idempotent. Tables: `silver.users`, `silver.orders`, `silver.payments`.
-- **v0.4** ✅: **Gold layer (dbt)** — stg → int → mart; `dim_users`, `fct_orders`, `fct_payments`, `mart_kpis_daily`. dbt tests (not_null, unique, referential integrity, completeness).
-- **v0.5** ✅: **Demo scripts** — `demo_failure_recovery.sh` (failure recovery), `demo_replay_idempotency.sh` (replay idempotency), `demo_schema_evolution.sh` (schema evolution).
-- **v0.6** ✅: **Airflow DAGs** — `maintenance_iceberg.py` (compact, expire snapshots, remove orphans), `quality_gate_cdc.py` (dbt tests, block on failure), `reconciliation.py`, `backfill.py`.
-- **v0.7** ✅: **Observability (Datadog)** — Monitors (consumer lag, freshness, completeness, job success), Dashboard (SLO-aligned).
-- **v0.8** ✅: **K8s deploy** — Kustomize overlays (dev/stg/prod), one-command deploy (`make deploy-k8s-*`).
+- **v0.1** : Local CDC infra (Postgres → Debezium → Kafka) + CDC contracts
+- **v0.2**: **Bronze ingest** — Spark Structured Streaming reads Debezium from Kafka, contract validation (fail-fast), writes to Iceberg `bronze.raw_cdc` (MinIO). Includes `event_uid`, `entity_key`, `ordering_key`, Kafka metadata, checkpoint recovery.
+- **v0.3** : **Silver layer** — Reads from Bronze, MERGE INTO by `ordering_key`, delete (op='d') support, idempotent. Tables: `silver.users`, `silver.orders`, `silver.payments`.
+- **v0.4**: **Gold layer (dbt)** — stg → int → mart; `dim_users`, `fct_orders`, `fct_payments`, `mart_kpis_daily`. dbt tests (not_null, unique, referential integrity, completeness).
+- **v0.5** : **Demo scripts** — `demo_failure_recovery.sh` (failure recovery), `demo_replay_idempotency.sh` (replay idempotency), `demo_schema_evolution.sh` (schema evolution).
+- **v0.6**: **Airflow DAGs** — `maintenance_iceberg.py` (compact, expire snapshots, remove orphans), `quality_gate_cdc.py` (dbt tests, block on failure), `reconciliation.py`, `backfill.py`.
+- **v0.7** : **Observability (Datadog)** — Monitors (consumer lag, freshness, completeness, job success), Dashboard (SLO-aligned).
+- **v0.8**: **K8s deploy** — Kustomize overlays (dev/stg/prod), one-command deploy (`make deploy-k8s-*`).
 
 **~98% complete** (implementation 100%, Terraform + CI/CD done; remaining: runtime testing)
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Core components
 - **PostgreSQL** 15+ — OLTP source (wal_level=logical)
@@ -48,7 +48,7 @@ See `docs/progress_report.md` for details.
 
 ---
 
-## 📊 Data Pipeline Overview
+## Data Pipeline Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -213,7 +213,7 @@ See `docs/progress_report.md` for details.
 
 ---
 
-## 🔄 Complete Data Flow (File Call Order)
+## Complete Data Flow (File Call Order)
 
 ### Phase 1: Infrastructure Initialization
 
@@ -535,68 +535,68 @@ dbt run → stg/{users,orders,payments}.sql (read from Silver)
 
 ---
 
-## 🎯 Project Progress Details
+## Project Progress Details
 
-### ✅ Completed (v0.2)
+###  Completed (v0.2)
 
 1. **Infrastructure**
-   - ✅ Postgres + Kafka + Kafka Connect (Debezium) local stack
-   - ✅ MinIO object storage (S3-compatible)
-   - ✅ Docker Compose orchestration
+   -  Postgres + Kafka + Kafka Connect (Debezium) local stack
+   -  MinIO object storage (S3-compatible)
+   -  Docker Compose orchestration
 
 2. **CDC Capture**
-   - ✅ Debezium connector configuration and deployment
-   - ✅ Kafka topics auto-created
-   - ✅ CDC events end-to-end validation
+   -  Debezium connector configuration and deployment
+   -  Kafka topics auto-created
+   -  CDC events end-to-end validation
 
 3. **Data Contracts**
-   - ✅ YAML contracts for three entities (users, orders, payments)
-   - ✅ Primary keys, required fields, op semantics, ordering_key priority, evolution policy
+   -  YAML contracts for three entities (users, orders, payments)
+   -  Primary keys, required fields, op semantics, ordering_key priority, evolution policy
 
 4. **Bronze Ingest**
-   - ✅ Spark Structured Streaming job
-   - ✅ Debezium event parsing (event_uid, entity_key, ordering_key)
-   - ✅ Contract validation (fail-fast)
-   - ✅ Iceberg table creation and writes
-   - ✅ Checkpoint recovery mechanism
-   - ✅ Unit tests (16 tests all pass)
+   -  Spark Structured Streaming job
+   -  Debezium event parsing (event_uid, entity_key, ordering_key)
+   -  Contract validation (fail-fast)
+   -  Iceberg table creation and writes
+   -  Checkpoint recovery mechanism
+   -  Unit tests (16 tests all pass)
 
 5. **Documentation**
-   - ✅ README, command.md, architecture docs, SLO, tradeoffs
+   -  README, command.md, architecture docs, SLO, tradeoffs
 
 ---
 
-### 🚧 In Progress / Pending (v0.3+)
+### In Progress / Pending (v0.3+)
 
 1. **Silver Layer**
-   - 🚧 Read from Bronze, MERGE INTO by entity_key + ordering_key
-   - 🚧 Delete handling (op='d' → DELETE)
-   - 🚧 Idempotency validation
+   - Read from Bronze, MERGE INTO by entity_key + ordering_key
+   - Delete handling (op='d' → DELETE)
+   - Idempotency validation
 
 2. **Gold Layer**
-   - 🚧 dbt models (stg → int → mart)
-   - 🚧 Quality gates (dbt tests)
-   - 🚧 KPI calculation
+   - dbt models (stg → int → mart)
+   - Quality gates (dbt tests)
+   - KPI calculation
 
 3. **Orchestration**
-   - 🚧 Airflow DAGs (backfill, maintenance, quality gate, reconciliation)
+   - Airflow DAGs (backfill, maintenance, quality gate, reconciliation)
 
 4. **Observability**
-   - 🚧 Datadog monitoring (consumer lag, freshness, completeness)
-   - 🚧 Alert rules
+   - Datadog monitoring (consumer lag, freshness, completeness)
+   - Alert rules
 
 5. **Demo Scripts**
-   - 🚧 Demo-1 failure recovery
-   - 🚧 Demo-2 replay idempotency
-   - 🚧 Demo-3 schema evolution
+   - Demo-1 failure recovery
+   - Demo-2 replay idempotency
+   - Demo-3 schema evolution
 
 6. **Operations**
-   - 🚧 Runbook completion (incident handling procedures)
-   - 🚧 CI/CD pipeline
+   - Runbook completion (incident handling procedures)
+   - CI/CD pipeline
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 ### 1. Start / Reset Docker Environment
 
@@ -608,7 +608,7 @@ docker compose down
 # Restart all services in background
 docker compose up -d
 
-# For full reset (⚠ clears Kafka / Postgres persistent data)
+# For full reset (clears Kafka / Postgres persistent data)
 docker compose down -v
 docker compose up -d
 ```
@@ -694,7 +694,7 @@ PYTHONPATH=. python -m pytest streaming/spark/tests -v
 make test-bronze
 ```
 
-**Expected**: 16 tests all pass ✅
+**Expected**: 16 tests all pass
 
 #### 7.2 Acceptance Tests
 
@@ -797,14 +797,14 @@ docker compose --profile bronze run --rm spark
 
 ---
 
-## 📈 Acceptance Criteria
+## Acceptance Criteria
 
-- ✅ **Data correctness**: No data loss (event_uid continuity), controlled duplicates (idempotent design), eventual consistency
-- ✅ **Replay/backfill**: Checkpoint recovery, Kafka offset replay (demo scripts implemented)
-- ✅ **SLA**: P95 latency < 2 minutes (monitoring configured), completeness checks (dbt tests + reconciliation)
-- ✅ **Observability**: End-to-end latency, consumer lag, job success rate, freshness, completeness (Datadog monitors + dashboard)
-- ✅ **Deployability**: Docker Compose one-command start, K8s Kustomize deploy (dev/stg/prod), config isolation (env vars)
-- ✅ **Governance**: Schema evolution process (defined in contracts, demo scripts implemented)
+-  **Data correctness**: No data loss (event_uid continuity), controlled duplicates (idempotent design), eventual consistency
+-  **Replay/backfill**: Checkpoint recovery, Kafka offset replay (demo scripts implemented)
+-  **SLA**: P95 latency < 2 minutes (monitoring configured), completeness checks (dbt tests + reconciliation)
+-  **Observability**: End-to-end latency, consumer lag, job success rate, freshness, completeness (Datadog monitors + dashboard)
+-  **Deployability**: Docker Compose one-command start, K8s Kustomize deploy (dev/stg/prod), config isolation (env vars)
+-  **Governance**: Schema evolution process (defined in contracts, demo scripts implemented)
 
 ---
 
@@ -995,7 +995,7 @@ docker compose --profile bronze run --rm spark
 
 ---
 
-## 📚 References
+## References
 
 ### Core Docs
 - `docs/progress_report.md` — Project progress and tech stack list
@@ -1026,7 +1026,7 @@ docker compose --profile bronze run --rm spark
 
 ---
 
-## 📁 Project File List
+## Project File List
 
 ### Root Directory Files
 

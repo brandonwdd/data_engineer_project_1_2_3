@@ -27,11 +27,11 @@ foreach ($src in $dagSources) {
     if (Test-Path $src) {
         Get-ChildItem -Path $src -Filter "*.py" -ErrorAction SilentlyContinue | ForEach-Object {
             Copy-Item $_.FullName -Destination $AirflowDagsDir -Force
-            Write-Host "  ✓ $($_.Name)" -ForegroundColor Gray
+            Write-Host "  [OK] $($_.Name)" -ForegroundColor Gray
         }
     }
 }
-Write-Host "✓ DAGs aggregation completed" -ForegroundColor Green
+Write-Host "[OK] DAGs aggregation completed" -ForegroundColor Green
 Write-Host ""
 
 # [2/8] Start Docker services (including Spark Bronze persistent)
@@ -42,7 +42,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Docker service startup failed" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ Docker services started" -ForegroundColor Green
+Write-Host "[OK] Docker services started" -ForegroundColor Green
 Write-Host "Waiting 45 seconds for services and Spark to be ready..." -ForegroundColor Yellow
 Start-Sleep -Seconds 45
 Write-Host ""
@@ -50,7 +50,7 @@ Write-Host ""
 # [3/8] Check service status
 Write-Host "[3/8] Checking service status..." -ForegroundColor Yellow
 docker compose ps
-Write-Host "✓ Service status check completed" -ForegroundColor Green
+Write-Host "[OK] Service status check completed" -ForegroundColor Green
 Write-Host ""
 
 # [4/8] Initialize Postgres + Debezium + Kafka Topics + test data
@@ -62,7 +62,7 @@ if ($LASTEXITCODE -ne 0) {
     Write-Host "Error: Database initialization failed" -ForegroundColor Red
     exit 1
 }
-Write-Host "  ✓ Database schema" -ForegroundColor Gray
+Write-Host "  [OK] Database schema" -ForegroundColor Gray
 
 Write-Host "  Waiting for Kafka Connect REST API to be ready..." -ForegroundColor Gray
 $maxRetries = 30
@@ -73,7 +73,7 @@ while ($retryCount -lt $maxRetries -and -not $kafkaConnectReady) {
         $testResponse = Invoke-WebRequest -Uri http://localhost:8083/connector-plugins -Method GET -TimeoutSec 2 -ErrorAction Stop
         if ($testResponse.StatusCode -eq 200) {
             $kafkaConnectReady = $true
-            Write-Host "  ✓ Kafka Connect REST API is ready" -ForegroundColor Gray
+            Write-Host "  [OK] Kafka Connect REST API is ready" -ForegroundColor Gray
         }
     } catch {
         $retryCount++
@@ -91,13 +91,13 @@ $json = Get-Content $ConnectorConfig -Raw
 try {
     $response = Invoke-WebRequest -Uri http://localhost:8083/connectors -Method POST -ContentType "application/json" -Body $json -ErrorAction Stop
     if ($response.StatusCode -eq 201 -or $response.StatusCode -eq 200) {
-        Write-Host "  ✓ Debezium connector created" -ForegroundColor Gray
+        Write-Host "  [OK] Debezium connector created" -ForegroundColor Gray
     } else {
-        Write-Host "  ✓ Connector may already exist" -ForegroundColor Gray
+        Write-Host "  [OK] Connector may already exist" -ForegroundColor Gray
     }
 } catch {
     if ($_.Exception.Response.StatusCode -eq 409) {
-        Write-Host "  ✓ Connector already exists, skipping" -ForegroundColor Gray
+        Write-Host "  [OK] Connector already exists, skipping" -ForegroundColor Gray
     } else {
         Write-Host "Error: Connector creation failed: $_" -ForegroundColor Red
         exit 1
@@ -108,17 +108,17 @@ $topics = @("dbserver_docker.public.users", "dbserver_docker.public.orders", "db
 foreach ($topic in $topics) {
     docker compose exec -T kafka kafka-topics --bootstrap-server localhost:9092 --create --topic $topic --partitions 1 --replication-factor 1 --if-not-exists 2>&1 | Out-Null
 }
-Write-Host "  ✓ Kafka Topics" -ForegroundColor Gray
+Write-Host "  [OK] Kafka Topics" -ForegroundColor Gray
 
 docker exec -i postgres psql -U postgres -d project1 -c "INSERT INTO public.users (user_id, email, status, created_at, updated_at) VALUES (100, 'test100@example.com', 'active', NOW(), NOW()) ON CONFLICT (user_id) DO UPDATE SET updated_at = NOW();" 2>&1 | Out-Null
-Write-Host "  ✓ Test data (user_id=100)" -ForegroundColor Gray
-Write-Host "✓ Postgres/CDC initialization completed" -ForegroundColor Green
+Write-Host "  [OK] Test data (user_id=100)" -ForegroundColor Gray
+Write-Host "[OK] Postgres/CDC initialization completed" -ForegroundColor Green
 Write-Host ""
 
 # [5/8] Wait for Bronze to consume a batch of data (optional short wait)
 Write-Host "[5/8] Waiting for Bronze to consume CDC (about 15 seconds)..." -ForegroundColor Yellow
 Start-Sleep -Seconds 15
-Write-Host "✓ Ready" -ForegroundColor Green
+Write-Host "[OK] Ready" -ForegroundColor Green
 Write-Host ""
 
 # [6/8] Run Silver Merge once
@@ -128,7 +128,7 @@ docker compose run --rm spark sh -c "$silverCmd"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Warning: Silver Merge not successful, can retry later in Airflow or manually" -ForegroundColor Yellow
 } else {
-    Write-Host "✓ Silver Merge completed" -ForegroundColor Green
+    Write-Host "[OK] Silver Merge completed" -ForegroundColor Green
 }
 Write-Host ""
 
@@ -139,7 +139,7 @@ docker compose run --rm spark sh -c $registerCmd
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Warning: Silver registration to REST not successful, dbt may report Schema 'silver' does not exist" -ForegroundColor Yellow
 } else {
-    Write-Host "✓ Silver registered to REST catalog" -ForegroundColor Green
+    Write-Host "[OK] Silver registered to REST catalog" -ForegroundColor Green
 }
 Write-Host ""
 
@@ -150,7 +150,7 @@ docker compose --profile gold run --rm dbt sh -c $dbtCmd
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Warning: dbt not fully successful, can execute later: docker compose --profile gold run --rm dbt sh -c \"pip install dbt-trino && cd /app/analytics/dbt && dbt deps && dbt run\"" -ForegroundColor Yellow
 } else {
-    Write-Host "✓ Gold (dbt) completed" -ForegroundColor Green
+    Write-Host "[OK] Gold (dbt) completed" -ForegroundColor Green
 }
 Write-Host ""
 
@@ -159,16 +159,16 @@ Write-Host "[8/8] Project 2 tables (customer_segments)..." -ForegroundColor Yell
 $P2Sql = Join-Path $DockerComposeDir "sql\02-customer_segments.sql"
 if (Test-Path $P2Sql) {
     Get-Content $P2Sql | docker exec -i postgres psql -U postgres -d project1 2>&1 | Out-Null
-    Write-Host "  ✓ customer_segments created" -ForegroundColor Gray
+    Write-Host "  [OK] customer_segments created" -ForegroundColor Gray
 } else {
     Write-Host "  ⊘ sql\02-customer_segments.sql not found, skipping" -ForegroundColor Gray
 }
-Write-Host "✓ P2 tables ready" -ForegroundColor Green
+Write-Host "[OK] P2 tables ready" -ForegroundColor Green
 Write-Host ""
 
 # Complete
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host " ✓ One-command initialization completed, all three projects ready" -ForegroundColor Green
+Write-Host " [OK] One-command initialization completed, all three projects ready" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Services and ports:" -ForegroundColor White

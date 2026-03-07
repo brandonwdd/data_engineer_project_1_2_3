@@ -87,12 +87,12 @@ echo "6. Validating demo scripts..."
     for script in demo_failure_recovery.sh demo_replay_idempotency.sh demo_schema_evolution.sh; do
         if [ -f "$SCRIPT_DIR/$script" ]; then
             if [ -x "$SCRIPT_DIR/$script" ]; then
-                echo "✅ $script: exists and executable"
+                echo "[OK] $script: exists and executable"
             else
-                echo "⚠️  $script: exists but not executable"
+                echo "[WARN]  $script: exists but not executable"
             fi
         else
-            echo "❌ $script: not found"
+            echo "[FAIL] $script: not found"
         fi
     done
 } > "$PACKAGE_DIR/demo_scripts_validation.txt"
@@ -146,7 +146,7 @@ tar -czf "$(basename "$PACKAGE_FILE")" "test_evidence_${TIMESTAMP}/" 2>/dev/null
     zip -r "$(basename "$PACKAGE_FILE" .tar.gz).zip" "test_evidence_${TIMESTAMP}/" > /dev/null 2>&1
 
 echo ""
-echo "✅ Test evidence package generated:"
+echo "[OK] Test evidence package generated:"
 echo "   Directory: $PACKAGE_DIR"
 if [ -f "$PACKAGE_FILE" ]; then
     echo "   Archive: $PACKAGE_FILE"

@@ -1,6 +1,6 @@
 # Terraform + GitHub Actions Quick Start
 
-## 🚀 Terraform Usage (Create AWS S3)
+## Terraform Usage (Create AWS S3)
 
 ### Prerequisites
 
@@ -76,7 +76,7 @@ terraform destroy
 
 ---
 
-## 🔄 GitHub Actions CI/CD
+## GitHub Actions CI/CD
 
 ### Auto Trigger
 
@@ -124,7 +124,7 @@ Replace `YOUR_USERNAME` and `YOUR_REPO` with your GitHub username and repo name.
 
 ---
 
-## 📝 Environment Switch Examples
+## Environment Switch Examples
 
 ### Scenario 1: Local Dev (MinIO)
 
@@ -160,7 +160,7 @@ docker compose --profile bronze run --rm spark
 
 ---
 
-## ⚠️ Notes
+## Notes
 
 1. **S3 bucket name must be globally unique** (shared namespace across all AWS accounts)
    - If name taken, modify `project_name` in `terraform.tfvars`
@@ -178,12 +178,12 @@ docker compose --profile bronze run --rm spark
 
 ---
 
-## 🎯 Next Steps
+## Next Steps
 
-1. ✅ Terraform implemented
-2. ✅ GitHub Actions CI/CD implemented
-3. ⚠️ **Run Terraform to create S3 bucket** (you have AWS account)
-4. ⚠️ **Run idempotency validation** (evidence #3)
+1.  Terraform implemented
+2.  GitHub Actions CI/CD implemented
+3.  **Run Terraform to create S3 bucket** (you have AWS account)
+4.  **Run idempotency validation** (evidence #3)
 
 Detailed docs:
 - Terraform: `infra/terraform/README.md`

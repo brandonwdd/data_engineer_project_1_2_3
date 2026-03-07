@@ -156,7 +156,7 @@ NOTE: including this package in your project will no longer auto-include `dbt-ut
 ## New Features
 * Add new `expect_column_values_to_have_consistent_casing` test by @agusfigueroa-htg in https://github.com/calogica/dbt-expectations/pull/138
 
-## Doc Updates 💌
+## Doc Updates
 * Update README.md by @kdw2126 in https://github.com/calogica/dbt-expectations/pull/134
 * Fix documentation to note DBT 1.0.0 compatibility by @kdw2126 in https://github.com/calogica/dbt-expectations/pull/136
 

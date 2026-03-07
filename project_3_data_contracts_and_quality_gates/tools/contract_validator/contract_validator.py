@@ -227,12 +227,12 @@ def main():
         
         violations = validator.validate_cdc_event(contract, event)
         if violations:
-            print("❌ Contract violations found:")
+            print("Contract violations found:")
             for v in violations:
                 print(f"  - {v}")
             exit(1)
         else:
-            print("✅ Event is valid")
+            print("Event is valid")
     else:
         # Validate all contracts
         results = validator.validate_all_contracts()
@@ -249,7 +249,7 @@ def main():
         print(f"  Invalid: {results['invalid']}")
         
         if results['invalid'] > 0:
-            print("\n❌ Invalid contracts:")
+            print("\nInvalid contracts:")
             for contract_result in results['contracts']:
                 if not contract_result['valid']:
                     print(f"  - {contract_result['contract_path']}")
@@ -257,7 +257,7 @@ def main():
                         print(f"    - {v}")
             exit(1)
         else:
-            print("\n✅ All contracts are valid")
+            print("\nAll contracts are valid")
 
 
 if __name__ == '__main__':

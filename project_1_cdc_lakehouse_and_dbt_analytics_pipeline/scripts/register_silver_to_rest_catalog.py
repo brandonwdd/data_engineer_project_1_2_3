@@ -70,10 +70,10 @@ def register_silver_tables() -> None:
             # Verify
             rest_count = spark.table(f"iceberg_rest.silver.{entity}").count()
             print(f"  - Verified in REST catalog: {rest_count} records")
-            print(f"  ✓ {entity} table registered successfully")
+            print(f"  [OK] {entity} table registered successfully")
             
         except Exception as e:
-            print(f"  ✗ {entity} table processing failed: {e}")
+            print(f"  [FAIL] {entity} table processing failed: {e}")
             import traceback
             traceback.print_exc()
             continue

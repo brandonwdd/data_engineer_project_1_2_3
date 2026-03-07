@@ -123,9 +123,9 @@ echo "Test 3: Functional endpoint tests..."
 echo "  Testing /kpi endpoint..."
 KPI_RESPONSE=$(curl -s "$API_BASE_URL/kpi?date=$TEST_DATE&version=v1")
 if echo "$KPI_RESPONSE" | grep -q "total_gmv"; then
-    echo "    ✓ KPI endpoint working"
+    echo "    [OK] KPI endpoint working"
 else
-    echo "    ✗ KPI endpoint failed"
+    echo "    [FAIL] KPI endpoint failed"
     echo "    Response: $KPI_RESPONSE"
 fi
 
@@ -133,18 +133,18 @@ fi
 echo "  Testing /versions endpoint..."
 VERSIONS_RESPONSE=$(curl -s "$API_BASE_URL/versions")
 if echo "$VERSIONS_RESPONSE" | grep -q "versions"; then
-    echo "    ✓ Versions endpoint working"
+    echo "    [OK] Versions endpoint working"
 else
-    echo "    ✗ Versions endpoint failed"
+    echo "    [FAIL] Versions endpoint failed"
 fi
 
 # Test metrics list endpoint
 echo "  Testing /metrics/list endpoint..."
 METRICS_RESPONSE=$(curl -s "$API_BASE_URL/metrics/list?version=v1")
 if echo "$METRICS_RESPONSE" | grep -q "metrics"; then
-    echo "    ✓ Metrics list endpoint working"
+    echo "    [OK] Metrics list endpoint working"
 else
-    echo "    ✗ Metrics list endpoint failed"
+    echo "    [FAIL] Metrics list endpoint failed"
 fi
 
 # Generate summary
@@ -162,18 +162,18 @@ cat > "$EVIDENCE_DIR/${TIMESTAMP}_api_latency_summary.md" << EOF
 - **Min**: ${KPI_MIN}ms
 - **Max**: ${KPI_MAX}ms
 - **SLO Target**: < 300ms
-- **Status**: $([ $(echo "$KPI_P95 < 300" | bc) -eq 1 ] && echo "✓ PASS" || echo "✗ FAIL")
+- **Status**: $([ $(echo "$KPI_P95 < 300" | bc) -eq 1 ] && echo "[OK] PASS" || echo "[FAIL] FAIL")
 
 ## User Segment Endpoint (/user_segment)
 - **Mean Latency**: ${SEGMENT_MEAN}ms
 - **P95 Latency**: ${SEGMENT_P95}ms
 - **SLO Target**: < 300ms
-- **Status**: $([ $(echo "$SEGMENT_P95 < 300" | bc 2>/dev/null || echo "1") -eq 1 ] && echo "✓ PASS" || echo "✗ FAIL")
+- **Status**: $([ $(echo "$SEGMENT_P95 < 300" | bc 2>/dev/null || echo "1") -eq 1 ] && echo "[OK] PASS" || echo "[FAIL] FAIL")
 
 ## Functional Tests
-- KPI endpoint: ✓
-- Versions endpoint: ✓
-- Metrics list endpoint: ✓
+- KPI endpoint: [OK]
+- Versions endpoint: [OK]
+- Metrics list endpoint: [OK]
 
 ## Artifacts
 - KPI latency data: \`${TIMESTAMP}_kpi_latency.csv\`

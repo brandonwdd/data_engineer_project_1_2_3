@@ -1,21 +1,21 @@
 # Project 2: Metrics Service + Reverse ETL (Production-Grade)
 
-## 🚀 Status — v1.0 (Production-Ready)
+## Status — v1.0 (Production-Ready)
 
-- **v0.1** ✅: dbt semantic layer — direct ref to Project 1 Gold, user segmentation (stg/int/mart)
-- **v0.2** ✅: **Metrics API** — FastAPI + Trino, versioned KPI and user-segment queries
-- **v0.3** ✅: **Reverse ETL** — Postgres upsert + Kafka publish, idempotent
-- **v0.4** ✅: **Quality gates** — Airflow DAG (dbt tests, completeness, release log)
-- **v0.5** ✅: **Demo scripts** — `demo_metric_release.sh`, `demo_reverse_etl.sh`, `demo_api_latency.sh`
-- **v0.6** ✅: **Release log** — `metric_release_log` table, version tracking
-- **v0.7** ✅: **K8s deploy** — Kustomize overlays (dev/prod), one-command deploy
-- **v0.8** ✅: **Docs** — README, architecture, SLO, runbook, component docs
+- **v0.1** : dbt semantic layer — direct ref to Project 1 Gold, user segmentation (stg/int/mart)
+- **v0.2** : **Metrics API** — FastAPI + Trino, versioned KPI and user-segment queries
+- **v0.3** : **Reverse ETL** — Postgres upsert + Kafka publish, idempotent
+- **v0.4** : **Quality gates** — Airflow DAG (dbt tests, completeness, release log)
+- **v0.5** : **Demo scripts** — `demo_metric_release.sh`, `demo_reverse_etl.sh`, `demo_api_latency.sh`
+- **v0.6** : **Release log** — `metric_release_log` table, version tracking
+- **v0.7** : **K8s deploy** — Kustomize overlays (dev/prod), one-command deploy
+- **v0.8** : **Docs** — README, architecture, SLO, runbook, component docs
 
 **~98% complete** (implementation 100%, docs done; remaining: runtime testing)
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 ### Core
 - **dbt** — Modeling (semantic layer, refs Project 1 Gold)
@@ -44,7 +44,7 @@ See `docs/architecture.md` for details.
 
 ---
 
-## 📊 Data Pipeline Overview
+## Data Pipeline Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -117,7 +117,7 @@ See `docs/architecture.md` for details.
 
 ---
 
-## 🔄 Data Flow (File Call Order)
+## Data Flow (File Call Order)
 
 ### Phase 1: dbt semantic layer
 
@@ -223,54 +223,54 @@ See `docs/architecture.md` for details.
 
 ---
 
-## 🎯 Progress
+## Progress
 
-### ✅ Done (v1.0)
+###  Done (v1.0)
 
 1. **dbt semantic layer**
-   - ✅ Staging: direct ref to Project 1 Gold
-   - ✅ Intermediate: user segmentation
-   - ✅ Mart: versioned KPI mart, user-segment mart
-   - ✅ Schema and custom tests
+   -  Staging: direct ref to Project 1 Gold
+   -  Intermediate: user segmentation
+   -  Mart: versioned KPI mart, user-segment mart
+   -  Schema and custom tests
 
 2. **Metrics API**
-   - ✅ FastAPI service
-   - ✅ Trino integration
-   - ✅ Versioned queries
-   - ✅ Health and metadata endpoints
+   -  FastAPI service
+   -  Trino integration
+   -  Versioned queries
+   -  Health and metadata endpoints
 
 3. **Reverse ETL**
-   - ✅ Postgres upsert (idempotent)
-   - ✅ Kafka publish (ordering)
-   - ✅ Error handling and retries
+   -  Postgres upsert (idempotent)
+   -  Kafka publish (ordering)
+   -  Error handling and retries
 
 4. **Quality gates**
-   - ✅ Airflow DAG
-   - ✅ dbt test blocking
-   - ✅ Completeness checks
-   - ✅ Release log
+   -  Airflow DAG
+   -  dbt test blocking
+   -  Completeness checks
+   -  Release log
 
 5. **Release log**
-   - ✅ `metric_release_log` table
-   - ✅ Version tracking
+   -  `metric_release_log` table
+   -  Version tracking
 
 6. **Demo scripts**
-   - ✅ `demo_metric_release.sh`: metric release
-   - ✅ `demo_reverse_etl.sh`: Reverse ETL
-   - ✅ `demo_api_latency.sh`: API latency
+   -  `demo_metric_release.sh`: metric release
+   -  `demo_reverse_etl.sh`: Reverse ETL
+   -  `demo_api_latency.sh`: API latency
 
 7. **Docs**
-   - ✅ README, architecture, SLO, runbook
-   - ✅ Component docs (dbt, API, Reverse ETL)
-   - ✅ env example, setup script
+   -  README, architecture, SLO, runbook
+   -  Component docs (dbt, API, Reverse ETL)
+   -  env example, setup script
 
 8. **K8s deploy**
-   - ✅ Kustomize (base + dev/prod overlays)
-   - ✅ Metrics API Deployment and Service
+   -  Kustomize (base + dev/prod overlays)
+   -  Metrics API Deployment and Service
 
 ---
 
-## 🚀 Quick start
+## Quick start
 
 ### Prerequisites
 
@@ -382,20 +382,20 @@ make demo-api-latency
 
 ---
 
-## 📈 Acceptance criteria
+## Acceptance criteria
 
-- ✅ **Unified metrics**: All KPIs from Project 1 mart
-- ✅ **Versioning**: Metric versioning and release tracking (`metric_release_log`)
-- ✅ **Quality gates**: dbt test failure → block release; Completeness failure → block
-- ✅ **Idempotency**: Reverse ETL safe to retry, no duplicates
-- ✅ **SLA**: API p95 < 300ms; KPI freshness < 10 min; Completeness = 100%
-- ✅ **Observability**: API latency, KPI freshness, Completeness, Reverse ETL success rate
-- ✅ **Deploy**: K8s Kustomize (dev/prod), config isolation (env vars)
-- ✅ **Governance**: Release log, version tracking, quality gates
+-  **Unified metrics**: All KPIs from Project 1 mart
+-  **Versioning**: Metric versioning and release tracking (`metric_release_log`)
+-  **Quality gates**: dbt test failure → block release; Completeness failure → block
+-  **Idempotency**: Reverse ETL safe to retry, no duplicates
+-  **SLA**: API p95 < 300ms; KPI freshness < 10 min; Completeness = 100%
+-  **Observability**: API latency, KPI freshness, Completeness, Reverse ETL success rate
+-  **Deploy**: K8s Kustomize (dev/prod), config isolation (env vars)
+-  **Governance**: Release log, version tracking, quality gates
 
 ---
 
-## 📁 Project layout
+## Project layout
 
 ### Root
 
@@ -486,7 +486,7 @@ make demo-api-latency
 
 ---
 
-## 📚 References
+## References
 
 ### Core
 - `docs/architecture.md` — Architecture
@@ -506,7 +506,7 @@ make demo-api-latency
 
 ---
 
-## 🔗 Integration with Project 1
+## Integration with Project 1
 
 ### Data
 - **Direct ref**: Project 2 dbt queries Project 1 Gold
@@ -526,7 +526,7 @@ make demo-api-latency
 
 ---
 
-## 🎯 Design principles
+## Design principles
 
 1. **Fully on Project 1**: No duplicate data, direct Gold refs
 2. **Unified metrics**: All KPIs from same mart
@@ -537,6 +537,6 @@ make demo-api-latency
 
 ---
 
-## 📝 License
+## License
 
 Same as Project 1

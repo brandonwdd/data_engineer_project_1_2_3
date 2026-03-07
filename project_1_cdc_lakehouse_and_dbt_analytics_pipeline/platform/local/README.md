@@ -63,19 +63,19 @@ Wait about 45s for MinIO/Airflow/Spark to be ready.
 
 | Service           | Container               | Host port | Used by | Required |
 |-------------------|-------------------------|-----------|---------|----------|
-| Postgres          | postgres                | **5432**  | P1 (OLTP), P2 (Reverse ETL), Airflow (metadata) | ✅ Yes |
-| Zookeeper         | zookeeper               | 2181      | P1 (Kafka) | ✅ Yes |
-| Kafka             | kafka                   | **9092**, 29092 | P1 (CDC), P2 (Reverse ETL) | ✅ Yes |
-| Kafka Connect     | kafka-connect           | **8083**  | P1 (Debezium) | ✅ Yes |
-| MinIO             | minio                   | **9000**, 9001 | P1 (Iceberg), Trino (Iceberg) | ✅ Yes |
-| MinIO Init        | minio-init              | —         | Creates `warehouse` bucket | ✅ Yes (one-off) |
-| Iceberg REST      | iceberg-rest            | **8181**  | Trino catalog (P2, P3) | ✅ Yes |
-| Trino             | trino                   | **8080**  | P2 (Metrics API, dbt, Reverse ETL), P3 (quality gate) | ✅ Yes |
-| Airflow DB Create | airflow-db-create       | —         | Creates `airflow` DB | ✅ Yes (one-off) |
-| Airflow Init      | airflow-init            | —         | Initializes Airflow DB | ✅ Yes (one-off) |
-| Airflow Webserver | airflow-webserver       | **8081**  | P2 (metric_publish_gate), P3 (quality_gate_enforcement) | ✅ Yes |
-| Airflow Scheduler | airflow-scheduler       | —         | Runs Airflow DAGs (P2, P3) | ✅ Yes |
-| Spark             | spark                   | —         | P1 Bronze persistent (CDC→Kafka→Bronze automatic) | ✅ Yes |
+| Postgres          | postgres                | **5432**  | P1 (OLTP), P2 (Reverse ETL), Airflow (metadata) |  Yes |
+| Zookeeper         | zookeeper               | 2181      | P1 (Kafka) |  Yes |
+| Kafka             | kafka                   | **9092**, 29092 | P1 (CDC), P2 (Reverse ETL) |  Yes |
+| Kafka Connect     | kafka-connect           | **8083**  | P1 (Debezium) |  Yes |
+| MinIO             | minio                   | **9000**, 9001 | P1 (Iceberg), Trino (Iceberg) |  Yes |
+| MinIO Init        | minio-init              | —         | Creates `warehouse` bucket |  Yes (one-off) |
+| Iceberg REST      | iceberg-rest            | **8181**  | Trino catalog (P2, P3) |  Yes |
+| Trino             | trino                   | **8080**  | P2 (Metrics API, dbt, Reverse ETL), P3 (quality gate) |  Yes |
+| Airflow DB Create | airflow-db-create       | —         | Creates `airflow` DB |  Yes (one-off) |
+| Airflow Init      | airflow-init            | —         | Initializes Airflow DB |  Yes (one-off) |
+| Airflow Webserver | airflow-webserver       | **8081**  | P2 (metric_publish_gate), P3 (quality_gate_enforcement) |  Yes |
+| Airflow Scheduler | airflow-scheduler       | —         | Runs Airflow DAGs (P2, P3) |  Yes |
+| Spark             | spark                   | —         | P1 Bronze persistent (CDC→Kafka→Bronze automatic) |  Yes |
 
 Postgres is exposed as **5432** on the host so Project 2 can use `POSTGRES_PORT=5432`. If host 5432 is already in use, change the compose mapping (e.g. `55432:5432`) and set `POSTGRES_PORT=55432` in Project 2.
 

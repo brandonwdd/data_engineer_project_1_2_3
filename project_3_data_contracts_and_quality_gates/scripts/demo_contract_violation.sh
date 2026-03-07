@@ -37,7 +37,7 @@ cat > /tmp/valid_event.json << 'EOF'
 }
 EOF
 
-echo "  ✓ Valid event created"
+echo "  [OK] Valid event created"
 
 # Step 2: Validate valid event
 echo ""
@@ -48,9 +48,9 @@ pip install -q -r requirements.txt 2>/dev/null || true
 python contract_validator.py \
   --contract "$PROJECT_ROOT/project_1_cdc_lakehouse_and_dbt_analytics_pipeline/contracts/cdc/orders.yaml" \
   --event /tmp/valid_event.json > "$EVIDENCE_DIR/${TIMESTAMP}_valid_event.log" 2>&1 && {
-    echo "  ✅ Valid event passed validation"
+    echo "   Valid event passed validation"
 } || {
-    echo "  ❌ Valid event failed validation (unexpected)"
+    echo "   Valid event failed validation (unexpected)"
     exit 1
 }
 
@@ -103,7 +103,7 @@ cat > /tmp/invalid_event_3.json << 'EOF'
 }
 EOF
 
-echo "  ✓ Invalid events created"
+echo "  [OK] Invalid events created"
 
 # Step 4: Validate invalid events
 echo ""
@@ -114,27 +114,27 @@ VIOLATION_COUNT=0
 python contract_validator.py \
   --contract "$PROJECT_ROOT/project_1_cdc_lakehouse_and_dbt_analytics_pipeline/contracts/cdc/orders.yaml" \
   --event /tmp/invalid_event_1.json > "$EVIDENCE_DIR/${TIMESTAMP}_invalid_1.log" 2>&1 && {
-    echo "  ❌ Invalid event 1 (missing source) should have failed"
+    echo "   Invalid event 1 (missing source) should have failed"
 } || {
-    echo "  ✅ Invalid event 1 correctly rejected (missing source)"
+    echo "   Invalid event 1 correctly rejected (missing source)"
     VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
 }
 
 python contract_validator.py \
   --contract "$PROJECT_ROOT/project_1_cdc_lakehouse_and_dbt_analytics_pipeline/contracts/cdc/orders.yaml" \
   --event /tmp/invalid_event_2.json > "$EVIDENCE_DIR/${TIMESTAMP}_invalid_2.log" 2>&1 && {
-    echo "  ❌ Invalid event 2 (invalid op) should have failed"
+    echo "   Invalid event 2 (invalid op) should have failed"
 } || {
-    echo "  ✅ Invalid event 2 correctly rejected (invalid op)"
+    echo "   Invalid event 2 correctly rejected (invalid op)"
     VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
 }
 
 python contract_validator.py \
   --contract "$PROJECT_ROOT/project_1_cdc_lakehouse_and_dbt_analytics_pipeline/contracts/cdc/orders.yaml" \
   --event /tmp/invalid_event_3.json > "$EVIDENCE_DIR/${TIMESTAMP}_invalid_3.log" 2>&1 && {
-    echo "  ❌ Invalid event 3 (invalid status) should have failed"
+    echo "   Invalid event 3 (invalid status) should have failed"
 } || {
-    echo "  ✅ Invalid event 3 correctly rejected (invalid status)"
+    echo "   Invalid event 3 correctly rejected (invalid status)"
     VIOLATION_COUNT=$((VIOLATION_COUNT + 1))
 }
 
@@ -144,9 +144,9 @@ echo "Step 5: Validating all contracts..."
 python contract_validator.py \
   --contracts-dir "$PROJECT_ROOT/project_3_data_contracts_and_quality_gates/contracts" \
   --output "$EVIDENCE_DIR/${TIMESTAMP}_contract_validation.json" > "$EVIDENCE_DIR/${TIMESTAMP}_contract_validation.log" 2>&1 && {
-    echo "  ✅ All contracts are valid"
+    echo "   All contracts are valid"
 } || {
-    echo "  ❌ Some contracts are invalid"
+    echo "   Some contracts are invalid"
     cat "$EVIDENCE_DIR/${TIMESTAMP}_contract_validation.log"
 }
 
@@ -158,15 +158,15 @@ cat > "$EVIDENCE_DIR/${TIMESTAMP}_contract_violation_summary.md" << EOF
 
 ## Test Results
 
-- **Valid Event**: ✅ Passed
+- **Valid Event**:  Passed
 - **Invalid Events Detected**: $VIOLATION_COUNT / 3
-- **Contract Validation**: ✅ All contracts valid
+- **Contract Validation**:  All contracts valid
 
 ## Invalid Events Tested
 
-1. **Missing required field (source)**: ✅ Correctly rejected
-2. **Invalid op value**: ✅ Correctly rejected
-3. **Invalid status value**: ✅ Correctly rejected
+1. **Missing required field (source)**:  Correctly rejected
+2. **Invalid op value**:  Correctly rejected
+3. **Invalid status value**:  Correctly rejected
 
 ## Artifacts
 

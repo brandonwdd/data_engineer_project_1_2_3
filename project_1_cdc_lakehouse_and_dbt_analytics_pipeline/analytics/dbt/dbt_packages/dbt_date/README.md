@@ -4,7 +4,7 @@
 
 `dbt-date` is an extension package for [**dbt**](https://github.com/dbt-labs/dbt) to handle common date logic and calendar functionality.
 
-## Featured Sponsors ❤️
+## Featured Sponsors
 
 Development of `dbt-date` (and `dbt-expectations`) is funded by our amazing [sponsors](https://github.com/sponsors/calogica), including our **featured** sponsors:
 

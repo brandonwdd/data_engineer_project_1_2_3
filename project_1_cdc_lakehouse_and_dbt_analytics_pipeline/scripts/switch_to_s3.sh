@@ -46,7 +46,7 @@ export S3_SECRET_KEY="${SECRET_KEY}"
 export S3_PATH_STYLE="false"
 EOF
 
-echo "✅ S3 configuration saved to: $ENV_FILE"
+echo "S3 configuration saved to: $ENV_FILE"
 echo ""
 echo "To use S3 configuration:"
 echo "  source $ENV_FILE"

@@ -32,7 +32,7 @@ for cmd in dbt trino curl; do
     if ! command -v $cmd &> /dev/null; then
         MISSING_CMDS+=($cmd)
     else
-        echo "  ✓ $cmd installed"
+        echo "  [OK] $cmd installed"
     fi
 done
 
@@ -47,13 +47,13 @@ echo "Step 3: Create .env..."
 if [ ! -f "$PROJECT_ROOT/.env" ]; then
     if [ -f "$PROJECT_ROOT/.env.example" ]; then
         cp "$PROJECT_ROOT/.env.example" "$PROJECT_ROOT/.env"
-        echo "  ✓ Created .env from .env.example"
+        echo "  [OK] Created .env from .env.example"
         echo "  Edit .env to set env vars"
     else
         echo "  WARNING: .env.example missing, skipping"
     fi
 else
-    echo "  ✓ .env exists, skipping"
+    echo "  [OK] .env exists, skipping"
 fi
 echo ""
 
@@ -74,7 +74,7 @@ if [ -f "$PROJECT_ROOT/reverse_etl/requirements.txt" ]; then
     }
 fi
 
-echo "  ✓ Python deps done"
+echo "  [OK] Python deps done"
 echo ""
 
 # dbt deps
@@ -85,7 +85,7 @@ if command -v dbt &> /dev/null; then
         dbt deps --profiles-dir . --project-dir . || {
             echo "  WARNING: dbt deps failed"
         }
-        echo "  ✓ dbt deps done"
+        echo "  [OK] dbt deps done"
     else
         echo "  WARNING: packages.yml missing"
     fi
@@ -103,7 +103,7 @@ mkdir -p "$PROJECT_ROOT/evidence/releases"
 mkdir -p "$PROJECT_ROOT/evidence/slo"
 mkdir -p "$PROJECT_ROOT/evidence/validation"
 mkdir -p "$PROJECT_ROOT/recon"
-echo "  ✓ Directories created"
+echo "  [OK] Directories created"
 echo ""
 
 # Check Project 1 Gold tables
@@ -117,7 +117,7 @@ if command -v trino &> /dev/null; then
     trino --server ${TRINO_HOST}:${TRINO_PORT} --user ${TRINO_USER} \
         --catalog iceberg --schema mart \
         --execute "SHOW TABLES" 2>/dev/null | grep -q "mart_kpis_daily" && {
-        echo "  ✓ Project 1 Gold tables exist"
+        echo "  [OK] Project 1 Gold tables exist"
     } || {
         echo "  WARNING: Cannot reach Trino or Project 1 Gold tables missing"
         echo "  Ensure Project 1 is running and Gold layer exists"

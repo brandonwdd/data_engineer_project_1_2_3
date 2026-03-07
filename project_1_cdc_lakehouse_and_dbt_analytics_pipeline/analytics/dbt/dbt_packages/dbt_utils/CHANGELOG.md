@@ -109,7 +109,7 @@ Rolled back due to accidental incompatibilities
 
 # dbt-utils 0.9.0
 ## Changed functionality
-* 🚨 (Almost all) cross-db macros are now implemented in dbt Core instead of dbt-utils. A backwards-compatibility layer remains for now and will be removed in dbt utils 1.0 later this year. Completed by @dbeatty10 and @jtcohen6 in https://github.com/dbt-labs/dbt-utils/pull/597, https://github.com/dbt-labs/dbt-utils/pull/586 and https://github.com/dbt-labs/dbt-utils/pull/615
+* (Almost all) cross-db macros are now implemented in dbt Core instead of dbt-utils. A backwards-compatibility layer remains for now and will be removed in dbt utils 1.0 later this year. Completed by @dbeatty10 and @jtcohen6 in https://github.com/dbt-labs/dbt-utils/pull/597, https://github.com/dbt-labs/dbt-utils/pull/586 and https://github.com/dbt-labs/dbt-utils/pull/615
   * See #487 for further discussion on the backstory
   * If you are a package maintainer with a dependency on these macros, prepare for their removal by switching to `{{ dbt.some_macro() }}`. Refer to [#package-ecosystem in the Community Slack](https://getdbt.slack.com/archives/CU4MRJ7QB/p1658467817852129) for further assistance
 * Feature: Add option to remove the `source_column_name` on the `union_relations` macro by @christineberger in https://github.com/dbt-labs/dbt-utils/pull/624
@@ -151,7 +151,7 @@ Rolled back due to accidental incompatibilities
 - [@jeremyyeo](https://github.com/jeremyyeo) (#606)
 
 # dbt-utils v0.8.5
-## 🚨 deduplicate ([#542](https://github.com/dbt-labs/dbt-utils/pull/542), [#548](https://github.com/dbt-labs/dbt-utils/pull/548))
+## deduplicate ([#542](https://github.com/dbt-labs/dbt-utils/pull/542), [#548](https://github.com/dbt-labs/dbt-utils/pull/548))
 
 The call signature of `deduplicate` has changed. The previous call signature is marked as deprecated and will be removed in the next minor version.
 
@@ -269,7 +269,7 @@ After:
 - [mdutoo](https://github.com/mdutoo) (#503)
 
 # dbt-utils v0.8.0
-## 🚨 Breaking changes
+## Breaking changes
 - dbt ONE POINT OH is here! This version of dbt-utils requires _any_ version (minor and patch) of v1, which means far less need for compatibility releases in the future.
 - The partition column in the `mutually_exclusive_ranges` test is now always called `partition_by_col`. This enables compatibility with `--store-failures` when multiple columns are concatenated together. If you have models built on top of the failures table, update them to reflect the new column name. ([#423](https://github.com/dbt-labs/dbt-utils/issues/423), [#430](https://github.com/dbt-labs/dbt-utils/pull/430))
 
@@ -277,7 +277,7 @@ After:
 - [codigo-ergo-sum](https://github.com/codigo-ergo-sum) (#430)
 
 # dbt-utils 0.7.5
-🚨 This is a compatibility release in preparation for `dbt-core` v1.0.0 (🎉). Projects using dbt-utils 0.7.4 with dbt-core v1.0.0 can expect to see a deprecation warning. This will be resolved in dbt_utils v0.8.0.
+This is a compatibility release in preparation for `dbt-core` v1.0.0. Projects using dbt-utils 0.7.4 with dbt-core v1.0.0 can expect to see a deprecation warning. This will be resolved in dbt_utils v0.8.0.
 
 ## Fixes
 - Regression in `get_column_values()` where the default would not be respected if the model didn't exist. ([#444](https://github.com/dbt-labs/dbt-utils/issues/444), [#448](https://github.com/dbt-labs/dbt-utils/pull/448))
@@ -300,7 +300,7 @@ After:
 
 
 # dbt-utils v0.7.4b1
-:rotating_light:🚨 We have renamed the `master` branch to `main`. If you have a local version of `dbt-utils`, you will need to update to the new branch. See the [GitHub docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/renaming-a-branch#updating-a-local-clone-after-a-branch-name-changes) for more details.
+We have renamed the `master` branch to `main`. If you have a local version of `dbt-utils`, you will need to update to the new branch. See the [GitHub docs](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository/renaming-a-branch#updating-a-local-clone-after-a-branch-name-changes) for more details.
 
 ## Under the hood
 - Bump `require-dbt-version` to have an upper bound of `'<=1.0.0'`.
@@ -343,7 +343,7 @@ After:
 # dbt-utils v0.7.0
 ## Breaking changes
 
-### 🚨 New dbt version
+### New dbt version
 
 dbt v0.20.0 or greater is required for this release. If you are not ready to upgrade, consider using a previous release of this package.
 
@@ -351,7 +351,7 @@ In accordance with the version upgrade, this package release includes breaking c
 - Generic (schema) tests
 - `dispatch` functionality
 
-### 🚨 get_column_values
+### get_column_values
 The order of (optional) arguments has changed in the `get_column_values` macro.
 
 Before:
@@ -386,7 +386,7 @@ If you were relying on the position to match up your optional arguments, this ma
 
 ## Features
 * Add new argument, `order_by`, to `get_column_values` (code originally in [#289](https://github.com/dbt-labs/dbt-utils/pull/289/) from [@clausherther](https://github.com/clausherther), merged via [#349](https://github.com/dbt-labs/dbt-utils/pull/349/))
-* Add `slugify` macro, and use it in the pivot macro. :rotating_light: This macro uses the `re` module, which is only available in dbt v0.19.0+. As a result, this feature introduces a breaking change. ([#314](https://github.com/dbt-labs/dbt-utils/pull/314))
+* Add `slugify` macro, and use it in the pivot macro.  This macro uses the `re` module, which is only available in dbt v0.19.0+. As a result, this feature introduces a breaking change. ([#314](https://github.com/dbt-labs/dbt-utils/pull/314))
 * Add `not_null_proportion` generic test that allows the user to specify the minimum (`at_least`) tolerated proportion (e.g., `0.95`) of non-null values
 
 ## Under the hood
@@ -451,8 +451,8 @@ If you were relying on the position to match up your optional arguments, this ma
 # dbt-utils v0.6.0
 
 ## Breaking changes
-- :rotating_light: dbt v0.18.0 or greater is required for this release. If you are not ready to upgrade, consider using a previous release of this package
-- :rotating_light: The `get_tables_by_prefix`, `union_tables` and `get_tables_by_pattern` macros have been removed
+- dbt v0.18.0 or greater is required for this release. If you are not ready to upgrade, consider using a previous release of this package
+- The `get_tables_by_prefix`, `union_tables` and `get_tables_by_pattern` macros have been removed
 
 ## Migration instructions
 - Upgrade your dbt project to v0.18.0 using [these instructions](https://discourse.getdbt.com/t/prerelease-v0-18-0-marian-anderson/1545).

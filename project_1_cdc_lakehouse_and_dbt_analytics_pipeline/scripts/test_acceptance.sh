@@ -31,10 +31,10 @@ test_check() {
     echo "Description: $description" | tee -a "$REPORT_FILE"
     
     if eval "$command" >> "$REPORT_FILE" 2>&1; then
-        echo "✅ PASSED" | tee -a "$REPORT_FILE"
+        echo " PASSED" | tee -a "$REPORT_FILE"
         ((PASSED++))
     else
-        echo "❌ FAILED" | tee -a "$REPORT_FILE"
+        echo " FAILED" | tee -a "$REPORT_FILE"
         ((FAILED++))
     fi
     echo "" >> "$REPORT_FILE"
@@ -43,7 +43,7 @@ test_check() {
 test_skip() {
     local name="$1"
     local reason="$2"
-    echo "⏭️  SKIPPED: $name ($reason)" | tee -a "$REPORT_FILE"
+    echo "  SKIPPED: $name ($reason)" | tee -a "$REPORT_FILE"
     ((SKIPPED++))
     echo "" >> "$REPORT_FILE"
 }
@@ -204,18 +204,18 @@ test_check "Runbook doc" \
 echo "" >> "$REPORT_FILE"
 echo "## Test Summary" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
-echo "✅ Passed: $PASSED" >> "$REPORT_FILE"
-echo "❌ Failed: $FAILED" >> "$REPORT_FILE"
-echo "⏭️  Skipped: $SKIPPED" >> "$REPORT_FILE"
+echo " Passed: $PASSED" >> "$REPORT_FILE"
+echo " Failed: $FAILED" >> "$REPORT_FILE"
+echo "  Skipped: $SKIPPED" >> "$REPORT_FILE"
 echo "Total: $((PASSED + FAILED + SKIPPED))" >> "$REPORT_FILE"
 echo "" >> "$REPORT_FILE"
 
 if [ $FAILED -eq 0 ]; then
-    echo "🎉 All executable tests passed!" >> "$REPORT_FILE"
-    echo "✅ Acceptance test passed!"
+    echo " All executable tests passed!" >> "$REPORT_FILE"
+    echo " Acceptance test passed!"
     exit 0
 else
-    echo "⚠️  $FAILED test(s) failed, check report" >> "$REPORT_FILE"
-    echo "❌ Acceptance test failed, see: $REPORT_FILE"
+    echo "  $FAILED test(s) failed, check report" >> "$REPORT_FILE"
+    echo " Acceptance test failed, see: $REPORT_FILE"
     exit 1
 fi

@@ -285,13 +285,13 @@ def enforce_gate_decision(**context):
     )
     
     if all_passed:
-        logger.info("✅ All quality gates passed - publishing allowed")
+        logger.info("All quality gates passed - publishing allowed")
         return {
             "decision": "allow",
             "message": "All quality gates passed"
         }
     else:
-        logger.error("❌ Quality gates failed - publishing blocked")
+        logger.error("Quality gates failed - publishing blocked")
         raise Exception("Quality gates failed - publishing blocked")
 
 

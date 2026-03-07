@@ -23,9 +23,9 @@ if (-not (Test-Path $P1Dags)) {
 if (Test-Path $P3DagsSource) {
     Get-ChildItem -Path $P3DagsSource -Filter "*.py" -ErrorAction SilentlyContinue | ForEach-Object {
         Copy-Item $_.FullName -Destination $P1Dags -Force
-        Write-Host "  ✓ $($_.Name)" -ForegroundColor Gray
+        Write-Host "  [OK] $($_.Name)" -ForegroundColor Gray
     }
-    Write-Host "✓ P3 DAG synced" -ForegroundColor Green
+    Write-Host "[OK] P3 DAG synced" -ForegroundColor Green
 } else {
     Write-Host "  Skipping: $P3DagsSource not found" -ForegroundColor Gray
 }
@@ -44,7 +44,7 @@ if ((Test-Path (Join-Path $ValidatorDir "contract_validator.py")) -and (Test-Pat
         }
         python contract_validator.py --contracts-dir $ContractsDir 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "✓ Contract validation passed" -ForegroundColor Green
+            Write-Host "[OK] Contract validation passed" -ForegroundColor Green
         } else {
             Write-Host "  Contract validation has warnings or failures (see above), continuing DAG execution unaffected" -ForegroundColor Gray
         }
@@ -67,7 +67,7 @@ if (Test-Path (Join-Path $ComposeDir "docker-compose.yml")) {
         exit 1
     }
     Pop-Location
-    Write-Host "✓ Platform running" -ForegroundColor Green
+    Write-Host "[OK] Platform running" -ForegroundColor Green
 } else {
     Write-Host "project_1_cdc_lakehouse_and_dbt_analytics_pipeline/platform/local not found, please complete project_1_cdc_lakehouse_and_dbt_analytics_pipeline first" -ForegroundColor Red
     exit 1
@@ -78,7 +78,7 @@ Write-Host ""
 Write-Host "[4/4] Opening Airflow UI..." -ForegroundColor Yellow
 $AirflowUrl = "http://localhost:8081"
 Start-Process $AirflowUrl
-Write-Host "✓ Opened $AirflowUrl" -ForegroundColor Green
+Write-Host "[OK] Opened $AirflowUrl" -ForegroundColor Green
 Write-Host ""
 Write-Host "----------------------------------------" -ForegroundColor Cyan
 Write-Host " Steps to complete Project 3:" -ForegroundColor Cyan

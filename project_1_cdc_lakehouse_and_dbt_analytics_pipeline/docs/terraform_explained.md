@@ -1,6 +1,6 @@
 # Terraform IaC Explained
 
-## 🤔 What is Terraform?
+## What is Terraform?
 
 **Terraform** is an Infrastructure as Code (IaC) tool by HashiCorp.
 
@@ -33,18 +33,18 @@ Then run `terraform apply` to create all resources automatically.
 
 ---
 
-## 📚 Core Concepts
+##  Core Concepts
 
 ### 1. Infrastructure as Code (IaC)
 
 **Definition**: Define and manage infrastructure (servers, databases, storage, networks) as code
 
 **Benefits**:
-- ✅ **Version control**: Infrastructure config managed in Git
-- ✅ **Repeatable**: Same code creates identical infrastructure in dev/stg/prod
-- ✅ **Auditable**: All changes recorded (Git commit history)
-- ✅ **Automated**: No manual clicks, `terraform apply` one-command deploy
-- ✅ **Consistent**: Avoids "manual config causes environment drift"
+-  **Version control**: Infrastructure config managed in Git
+-  **Repeatable**: Same code creates identical infrastructure in dev/stg/prod
+-  **Auditable**: All changes recorded (Git commit history)
+-  **Automated**: No manual clicks, `terraform apply` one-command deploy
+-  **Consistent**: Avoids "manual config causes environment drift"
 
 ### 2. Terraform Workflow
 
@@ -62,19 +62,19 @@ Then run `terraform apply` to create all resources automatically.
 
 ---
 
-## 🎯 Role in Project 1
+##  Role in Project 1
 
 ### Current State
 
 **Local dev**: Docker Compose + MinIO (local S3-compatible storage)
-- ✅ No AWS account needed
-- ✅ Zero cost
-- ✅ Sufficient for production-style demo
+-  No AWS account needed
+-  Zero cost
+-  Sufficient for production-style demo
 
 **Production**: Needs real AWS S3 (or other cloud storage)
-- ⚠️ AWS account required
-- ⚠️ Access credentials needed
-- ⚠️ Will incur costs (though S3 is cheap)
+-  AWS account required
+-  Access credentials needed
+-  Will incur costs (though S3 is cheap)
 
 ### What Terraform Should Do
 
@@ -198,7 +198,7 @@ locals {
 
 ---
 
-## 📁 Terraform Structure in Project
+##  Terraform Structure in Project
 
 ```
 infra/terraform/
@@ -221,7 +221,7 @@ infra/terraform/
 
 ---
 
-## 🎯 Why "Optional"?
+##  Why "Optional"?
 
 ### Requirements Quote
 
@@ -247,7 +247,7 @@ infra/terraform/
 
 ---
 
-## ✅ If Implementing, What to Do?
+##  If Implementing, What to Do?
 
 ### Minimal Implementation (Recommended)
 
@@ -354,7 +354,7 @@ terraform destroy
 
 ---
 
-## 🎓 Interview Value
+## Interview Value
 
 ### Benefits of Having Terraform Code
 
@@ -373,23 +373,23 @@ terraform destroy
 
 ### Even Without Running
 
-- ✅ Having Terraform code = proves you can write it
-- ✅ Can state in README: "Terraform code ready, supports one-command deploy to AWS"
-- ✅ Can show code in interview, explain design
+-  Having Terraform code = proves you can write it
+-  Can state in README: "Terraform code ready, supports one-command deploy to AWS"
+-  Can show code in interview, explain design
 
 ---
 
-## 📝 Summary
+##  Summary
 
 **Terraform IaC** = Define and manage cloud resources (S3, IAM, EKS, etc.) as code
 
 **In Project 1**:
 - Purpose: Manage AWS S3 bucket and IAM permissions (replace local MinIO)
-- Status: ✅ Implemented
+- Status:  Implemented
 - Priority: High (IaC is production-grade requirement)
 
 **Whether to implement**:
-- ✅ To demonstrate IaC: recommend implementing (at least S3 + IAM)
-- ✅ Implemented: S3 bucket + IAM user/policy
+-  To demonstrate IaC: recommend implementing (at least S3 + IAM)
+-  Implemented: S3 bucket + IAM user/policy
 
 **Minimal implementation**: S3 bucket + IAM user/policy (~50-100 lines of Terraform code)

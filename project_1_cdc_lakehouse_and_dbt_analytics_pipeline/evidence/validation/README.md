@@ -119,25 +119,25 @@ See `docs/acceptance_criteria.md`
 
 ### Core Requirements
 
-1. ✅ **Data correctness**: No loss, controlled duplicates, eventual consistency, update/delete support, deterministic
-2. ✅ **Replay/backfill**: Kafka replay, Bronze recompute, Iceberg time travel
-3. ✅ **SLA**: P95 latency < 2 min, Airflow maintenance daily, completeness checks
-4. ✅ **Observability**: End-to-end latency, consumer lag, job success rate, freshness, completeness, quality gates
-5. ✅ **Deployability**: One-command deploy, config isolation, storage switch
-6. ✅ **Governance**: Schema evolution, contracts and quality gates
+1.  **Data correctness**: No loss, controlled duplicates, eventual consistency, update/delete support, deterministic
+2.  **Replay/backfill**: Kafka replay, Bronze recompute, Iceberg time travel
+3.  **SLA**: P95 latency < 2 min, Airflow maintenance daily, completeness checks
+4.  **Observability**: End-to-end latency, consumer lag, job success rate, freshness, completeness, quality gates
+5.  **Deployability**: One-command deploy, config isolation, storage switch
+6.  **Governance**: Schema evolution, contracts and quality gates
 
 ## Evidence Checklist
 
 Required 8 evidence items:
 
-1. ✅ **Three demo scripts**: `scripts/demo_*.sh`
-2. ✅ **Reconciliation reports**: `scripts/run_reconciliation.sh` → `recon/`
-3. ✅ **Idempotency acceptance**: `scripts/test_idempotency.sh` → this directory
-4. ✅ **Backfill/replay runbook**: `runbook/replay_backfill.md`
-5. ✅ **Quality gate evidence**: `orchestration/airflow/dags/quality_gate_cdc.py`
-6. ✅ **SLO dashboard**: `observability/dashboards/exports/dashboard.json`
-7. ✅ **Release log**: (Project 2, optional)
-8. ✅ **Postmortem template**: `docs/postmortem_template.md`
+1.  **Three demo scripts**: `scripts/demo_*.sh`
+2.  **Reconciliation reports**: `scripts/run_reconciliation.sh` → `recon/`
+3.  **Idempotency acceptance**: `scripts/test_idempotency.sh` → this directory
+4.  **Backfill/replay runbook**: `runbook/replay_backfill.md`
+5.  **Quality gate evidence**: `orchestration/airflow/dags/quality_gate_cdc.py`
+6.  **SLO dashboard**: `observability/dashboards/exports/dashboard.json`
+7.  **Release log**: (Project 2, optional)
+8.  **Postmortem template**: `docs/postmortem_template.md`
 
 ## Run All Tests
 
